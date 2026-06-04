@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\User;
+use App\Models\Permission;
 use OpenApi\Attributes as OA;
 use Illuminate\Http\Request;
 use App\Http\Requests\UpdateUserRequest;
@@ -150,6 +151,10 @@ class UserController extends Controller
             new OA\Response(
                 response: 404,
                 description: "User not found"
+            ),
+            new OA\Response(
+                response: 409,
+                description: "Cannot delete last admin."
             )
         ]
     )]    
@@ -157,22 +162,17 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
-        // If there's one admin user, and we're trying to disable that user
-        /*if (Role::findByName('admin', 'web')->users->count() == 1 && true === $userToDestroy->hasRole('admin')) {
+        if (Permission::where('name', 'create permission_user_connection')->users->count() == 1 && true === $user->hasPermission('create permission_user_connection')) {
             return response()->json([
-                'message' => 'The given data was invalid.',
+                'message' => 'Cannot delete last admin.',
                 "errors"  => [
-                    "roles" => ["As the only admin, you may not disable your account."]
+                    "roles" => ["Cannot delete last admin."]
                 ],
             ], 409);
-        }*/
+        }
 
-        /*$userToDestroy->save();
-        $userToDestroy->token() ? $userToDestroy->token->revoke() : null;*/
-
-        //check for user being last admin
-        //log out user
-        //delete user
+        $user->delete();
+        $user->tokens()->delete();
         return response()->json(null, 204);
     }
 }
