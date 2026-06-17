@@ -53,10 +53,10 @@ class AuthController extends Controller
         $userData['email_verified_at'] = now();
         $user = User::create($userData);
 
-        $response = Http::asForm()->post(env('OAUTH2_HOST').'oauth/token', [
+        $response = Http::asForm()->post(config('oauth2_host').'oauth/token', [
             'grant_type' => 'password',
-            'client_id' => env('PASSPORT_PASSWORD_CLIENT_ID'),
-            'client_secret' => env('PASSPORT_PASSWORD_SECRET'),
+            'client_id' => config('passport_password_client_id'),
+            'client_secret' => config('passport_password_secret'),
             'username' => $userData['email'],
             'password' => $userData['password'],
             'scope' => '*',
@@ -94,10 +94,10 @@ class AuthController extends Controller
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
 
-            $response = Http::post(env('OAUTH2_HOST').'/oauth/token', [
+            $response = Http::post(config('oauth2_host').'/oauth/token', [
                 'grant_type' => 'password',
-                'client_id' => env('PASSPORT_PASSWORD_CLIENT_ID'),
-                'client_secret' => env('PASSPORT_PASSWORD_SECRET'),
+                'client_id' => config('passport_password_client_id'),
+                'client_secret' => config('passport_password_secret'),
                 'username' => $request->email,
                 'password' => $request->password,
                 'scope' => '',
@@ -129,11 +129,11 @@ class AuthController extends Controller
      */
     public function refreshToken(RefreshTokenRequest $request): JsonResponse
     {
-        $response = Http::asForm()->post(env('OAUTH2_HOST') . '/oauth/token', [
+        $response = Http::asForm()->post(config('oauth2_host') . '/oauth/token', [
             'grant_type' => 'refresh_token',
             'refresh_token' => $request->refresh_token,
-            'client_id' => env('PASSPORT_PASSWORD_CLIENT_ID'),
-            'client_secret' => env('PASSPORT_PASSWORD_SECRET'),
+            'client_id' => config('passport_password_client_id'),
+            'client_secret' => config('passport_password_secret'),
             'scope' => '',
         ]);
 
