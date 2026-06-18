@@ -94,10 +94,10 @@ class AuthController extends Controller
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
 
-            $response = Http::post(config('oauth2_host').'/oauth/token', [
+            $response = Http::post(config('oauth2.oauth2_host').'/oauth/token', [
                 'grant_type' => 'password',
-                'client_id' => config('passport_password_client_id'),
-                'client_secret' => config('passport_password_secret'),
+                'client_id' => config('oauth2.passport_password_client_id'),
+                'client_secret' => config('oauth2.passport_password_secret'),
                 'username' => $request->email,
                 'password' => $request->password,
                 'scope' => '',
@@ -129,11 +129,11 @@ class AuthController extends Controller
      */
     public function refreshToken(RefreshTokenRequest $request): JsonResponse
     {
-        $response = Http::asForm()->post(config('oauth2_host') . '/oauth/token', [
+        $response = Http::asForm()->post(config('oauth2.oauth2_host') . '/oauth/token', [
             'grant_type' => 'refresh_token',
             'refresh_token' => $request->refresh_token,
-            'client_id' => config('passport_password_client_id'),
-            'client_secret' => config('passport_password_secret'),
+            'client_id' => config('oauth2.passport_password_client_id'),
+            'client_secret' => config('oauth2.passport_password_secret'),
             'scope' => '',
         ]);
 
@@ -150,12 +150,12 @@ class AuthController extends Controller
         tags: ["Auth"],
         security: [["passport" => []]],
         parameters: [
-            /*new OA\Parameter(
+            new OA\Parameter(
                 name: "Bearer",
                 in: "header",
                 required: false,
                 schema: new OA\Schema(type: "string", default: "token")
-            ),*/
+            ),
                 new OA\Parameter(
                 name: "accept",
                 in: "header",
