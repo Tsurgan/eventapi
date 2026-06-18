@@ -150,12 +150,6 @@ class AuthController extends Controller
         tags: ["Auth"],
         security: [["passport" => []]],
         parameters: [
-            new OA\Parameter(
-                name: "Bearer",
-                in: "header",
-                required: false,
-                schema: new OA\Schema(type: "string", default: "token")
-            ),
                 new OA\Parameter(
                 name: "accept",
                 in: "header",

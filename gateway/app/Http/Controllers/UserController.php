@@ -50,7 +50,7 @@ class UserController extends Controller
                 in: "path",
                 required: true,
                 schema: new OA\Schema(type: "integer")
-            )
+            ),           
         ],
         responses: [
             new OA\Response(

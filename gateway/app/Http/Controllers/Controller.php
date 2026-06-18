@@ -18,7 +18,7 @@ use OpenApi\Attributes as OA;
 /*#[OA\SecurityScheme(
     securityScheme: "bearer",
     type: "http",
-    name: "Bearer",
+    name: "Authorization",
     in: "header"
 )]*/
 abstract class Controller

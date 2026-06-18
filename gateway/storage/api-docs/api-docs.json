@@ -81,6 +81,15 @@
                 "operationId": "fe8f3429cd6979b3b4517e186505f9f9",
                 "parameters": [
                     {
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "Bearer token"
+                        }
+                    },
+                    {
                         "name": "accept",
                         "in": "header",
                         "required": false,
