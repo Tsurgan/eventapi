@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Http\Requests\PermissionAssignRequest;
 use App\Models\User;
 use App\Models\Permission;
 use OpenApi\Attributes as OA;
@@ -40,6 +42,7 @@ class UserController extends Controller
         summary: "Get user by ID",
         description: "Returns a single user",
         tags: ["Users"],
+        security: [["passport" => []]],
         parameters: [
             new OA\Parameter(
                 name: "id",
@@ -70,6 +73,7 @@ class UserController extends Controller
         summary: "Update an existing user",
         description: "Updates user data",
         tags: ["Users"],
+        security: [["passport" => []]],
         parameters: [
             new OA\Parameter(
                 name: "id",
@@ -128,12 +132,12 @@ class UserController extends Controller
             ], 201);
     }
 
-
     #[OA\Delete(
         path: "/api/users/{id}",
         summary: "Delete a user",
         description: "Deletes a user by ID",
         tags: ["Users"],
+        security: [["passport" => []]],
         parameters: [
             new OA\Parameter(
                 name: "id",
@@ -175,4 +179,143 @@ class UserController extends Controller
         $user->tokens()->delete();
         return response()->json(null, 204);
     }
+
+    #[OA\Post(
+        path: "/api/users/{id}/permissions",
+        summary: "Add permissions to an existing user",
+        description: "Adds permissions to user",
+        tags: ["Users"],
+        security: [["passport" => []]],
+        parameters: [
+            new OA\Parameter(
+                name: "user_id",
+                description: "User ID",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "integer")
+            )
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(
+                        property: "permission_ids", 
+                        type: "array",
+                        items: new OA\Items(type: "integer"),
+                        example: "[2]",
+                    ),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "User permissions updated successfully",
+            ),
+            new OA\Response(
+                response: 404,
+                description: "User not found"
+            ),
+            new OA\Response(
+                response: 422,
+                description: "Validation error"
+            )
+        ]
+    )]
+    public function addPermissions(Request $request, int $user_id) {
+        $permAssignClass = new PermissionAssignRequest();  
+        $validator = Validator::make([
+            'user_id' => $user_id,
+            'permissions_ids' => $request->input('permissions_ids')
+        ], $permAssignClass->rules());
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'statusCode' => 422,
+                'errors'=> $validator->errors()
+            ], 422);
+        }
+
+        $permissionsData = $validator->validated()['permission_ids'];
+        $user = User::findOrFail($user_id);
+        $user->permissions()->syncWithoutDetaching($permissionsData);
+
+        return response()->json([
+            'success' => true,
+            'statusCode' => 201,
+            'message' => 'Permissions have been added successfully.',
+            'data' => ['user_id' => $user_id, 'permission_ids' => $permissionsData],
+        ], 201);
+    }    
+
+    #[OA\Post(
+        path: "/api/users/{id}/permission-deletions",
+        summary: "Delete permissions from an existing user",
+        description: "Removes permissions from user",
+        tags: ["Users"],
+        security: [["passport" => []]],
+        parameters: [
+            new OA\Parameter(
+                name: "user_id",
+                description: "User ID",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "integer")
+            )
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(
+                        property: "permission_ids", 
+                        type: "array",
+                        items: new OA\Items(type: "integer"),
+                        example: "[2]",
+                    ),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "User permissions removed successfully",
+            ),
+            new OA\Response(
+                response: 404,
+                description: "User not found"
+            ),
+            new OA\Response(
+                response: 422,
+                description: "Validation error"
+            )
+        ]
+    )]
+    public function removePermissions(Request $request, int $user_id) {
+        $permDetachClass = new PermissionAssignRequest();  
+        $validator = Validator::make([
+            'user_id' => $user_id,
+            'permissions_ids' => $request->input('permissions_ids')
+        ], $permDetachClass->rules());
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'statusCode' => 422,
+                'errors'=> $validator->errors()
+            ], 422);
+        }
+
+        $permissionsData = $validator->validated()['permission_ids'];
+        $user = User::findOrFail($user_id);
+        $user->permissions()->detach($permissionsData);
+
+        return response()->json([
+            'success' => true,
+            'statusCode' => 201,
+            'message' => 'Permissions have been removed successfully.',
+            'data' => ['user_id' => $user_id, 'permission_ids' => $permissionsData],
+        ], 201);
+    }  
 }

@@ -44,6 +44,7 @@ class RoleController extends Controller
     #[OA\Post(
         path: "/api/roles",
         tags: ["Roles"],
+        security: [["passport" => []]],
         summary: "Create role",
         description: "Creates a role",
         requestBody: new OA\RequestBody(
