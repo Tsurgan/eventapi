@@ -85,6 +85,33 @@ class RoleController extends Controller
     /**
      * Display the specified resource.
      */
+    #[OA\Get(
+        path: "/api/roles/{id}",
+        summary: "Get role by ID",
+        description: "Returns a single role",
+        tags: ["Roles"],
+        security: [["passport" => []]],
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                description: "Role ID",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "integer")
+            ),           
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Successful operation",
+                content: new OA\JsonContent(ref: "#/components/schemas/Role")
+            ),
+            new OA\Response(
+                response: 404,
+                description: "Role not found"
+            )
+        ]
+    )]
     public function show(int $id)
     {
         return Role::findOrFail($id);
@@ -93,6 +120,46 @@ class RoleController extends Controller
     /**
      * Update the specified resource in storage.
      */
+    #[OA\Put(
+        path: "/api/roles/{id}",
+        summary: "Update an existing role",
+        description: "Updates role data",
+        tags: ["Roles"],
+        security: [["passport" => []]],
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                description: "Role ID",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "integer")
+            )
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: "name", type: "string", example: "Jane Doe"),
+                    new OA\Property(property: "email", type: "string", format: "email", example: "jane@example.com")
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Role updated successfully",
+                content: new OA\JsonContent(ref: "#/components/schemas/Role")
+            ),
+            new OA\Response(
+                response: 404,
+                description: "Role not found"
+            ),
+            new OA\Response(
+                response: 422,
+                description: "Validation error"
+            )
+        ]
+    )]
     public function update(Request $request, int $id)
     {
         $validated = $request->validate([
@@ -113,6 +180,36 @@ class RoleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
+    #[OA\Delete(
+        path: "/api/roles/{id}",
+        summary: "Delete a role",
+        description: "Deletes a role by ID",
+        tags: ["Roles"],
+        security: [["passport" => []]],
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                description: "Role ID",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "integer")
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: 204,
+                description: "Role deleted successfully"
+            ),
+            new OA\Response(
+                response: 404,
+                description: "Role not found"
+            ),
+            new OA\Response(
+                response: 409,
+                description: "Cannot delete last admin."
+            )
+        ]
+    )]   
     public function destroy(int $id)
     {
         $role = Role::findOrFail($id);

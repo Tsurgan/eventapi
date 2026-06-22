@@ -9,6 +9,7 @@ use OpenApi\Attributes as OA;
 use Illuminate\Http\Request;
 use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -166,7 +167,10 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
-        if (Permission::where('name', 'create permission_user_connection')->users->count() == 1 && true === $user->hasPermission('create permission_user_connection')) {
+        if (
+            Permission::where('name', 'create permission_user_connection')->users->count() == 1 
+            && true === $user->hasPermission('create permission_user_connection')
+        ) {
             return response()->json([
                 'message' => 'Cannot delete last admin.',
                 "errors"  => [
@@ -227,7 +231,7 @@ class UserController extends Controller
         $permAssignClass = new PermissionAssignRequest();  
         $validator = Validator::make([
             'user_id' => $user_id,
-            'permissions_ids' => $request->input('permissions_ids')
+            'permission_ids' => $request->input('permission_ids')
         ], $permAssignClass->rules());
         if ($validator->fails()) {
             return response()->json([
@@ -296,7 +300,7 @@ class UserController extends Controller
         $permDetachClass = new PermissionAssignRequest();  
         $validator = Validator::make([
             'user_id' => $user_id,
-            'permissions_ids' => $request->input('permissions_ids')
+            'permission_ids' => $request->input('permission_ids')
         ], $permDetachClass->rules());
 
         if ($validator->fails()) {
@@ -317,5 +321,92 @@ class UserController extends Controller
             'message' => 'Permissions have been removed successfully.',
             'data' => ['user_id' => $user_id, 'permission_ids' => $permissionsData],
         ], 201);
-    }  
+    }
+    
+    #[OA\Get(
+        path: "/api/users/{user_id}/permissions/{permission_id}",
+        summary: "Check if permission of user exists by ID",
+        description: "Returns true if user's permission exists, otherwise false",
+        tags: ["Users"],
+        security: [["passport" => []]],
+        parameters: [
+            new OA\Parameter(
+                name: "user_id",
+                description: "User ID",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "integer")
+            ),
+            new OA\Parameter(
+                name: "permission_id",
+                description: "Permission ID",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "integer")
+            ),            
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Permission status",
+                content: new OA\JsonContent(
+                    oneOf: [
+                        new OA\Schema(
+                            schema: "Permission status",
+                            title: "Permission status",
+                            description: "Whether or not user has a permission",
+                            required: ["status"],
+                            properties: [
+                                new OA\Property(property: "status", type: "boolean", default: false),
+                            ]                            
+                        ),
+                    ],
+                    examples: [
+                        new OA\Examples(
+                            example: "true",
+                            summary: "User has permission",
+                            value: ["userPermitted" => true]
+                        ),
+                        new OA\Examples(
+                            example: "false",
+                            summary: "User does not have permission",
+                            value: ["userPermitted" => false]
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 422,
+                description: "Incorrect data"
+            ),
+        ]
+    )]
+    public function checkPermission(int $user_id, int $permission_id) {
+        $validator = Validator::make([
+            'user_id' => $user_id,
+            'permission_id' => $permission_id
+        ], [
+            'user_id' => ['required', 'integer'],
+            'permission_id' => ['required', 'integer'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'statusCode' => 422,
+                'errors'=> $validator->errors()
+            ], 422);
+        }
+
+        $exists = DB::table('permission_user')
+            ->where('user_id', $user_id)
+            ->where('permission_id', $permission_id)
+            ->exists();
+
+        return response()->json([
+            'success' => true,
+            'statusCode' => 200,
+            'data' => ['userPermitted' => $exists],
+        ], 200);
+    }   
 }
