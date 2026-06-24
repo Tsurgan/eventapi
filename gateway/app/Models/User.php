@@ -43,7 +43,7 @@ class User extends Authenticatable implements OAuthenticatable
         'email',
         'phone',
         'password',
-        'status_id',
+        'role_id',
     ];
 
     /**
@@ -67,6 +67,11 @@ class User extends Authenticatable implements OAuthenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
     }
 
     public function permissions()

@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class UserController extends Controller
 {
@@ -35,6 +36,8 @@ class UserController extends Controller
         ]
     )]
     public function index() {
+        Gate::authorize('viewAll');
+
         return User::all();
     }
 
@@ -62,10 +65,25 @@ class UserController extends Controller
             new OA\Response(
                 response: 404,
                 description: "User not found"
-            )
+            ),
+            new OA\Response(
+                response: 422,
+                description: "Incorrect data"
+            ),            
         ]
     )]
     public function show(int $id) {
+        $validator = Validator::make(['id' => $id], ['id' => ['required', 'integer']]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'statusCode' => 422,
+                'errors'=> $validator->errors()
+            ], 422);
+        }
+
+        Gate::authorize('view', $id);
+
         return User::findOrFail($id);
     }
 
@@ -111,7 +129,7 @@ class UserController extends Controller
     )]
     public function update(Request $request, int $id) {
             $updateClass = new UpdateUserRequest();
-            $validator = Validator::make($request->all(), $updateClass->rules());
+            $validator = Validator::make(['request' => $request->all(), 'id' => $id], $updateClass->rules());
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
@@ -120,7 +138,9 @@ class UserController extends Controller
                 ], 422);
             }
 
-            $userData = $validator->validated();
+            Gate::authorize('update', $id);
+
+            $userData = $validator->validated()['request'];
             $userData['email_verified_at'] = now();
             $user = User::findOrFail($id);
             $user->update($userData);
@@ -160,24 +180,28 @@ class UserController extends Controller
             new OA\Response(
                 response: 409,
                 description: "Cannot delete last admin."
+            ),
+            new OA\Response(
+                response: 422,
+                description: "Validation error"
             )
         ]
     )]    
     public function destroy(int $id)
     {
-        $user = User::findOrFail($id);
+        $validator = Validator::make(['id' => $id], ['id' => ['required', 'integer']]);
 
-        if (
-            Permission::where('name', 'create permission_user_connection')->users->count() == 1 
-            && true === $user->hasPermission('create permission_user_connection')
-        ) {
+        if ($validator->fails()) {
             return response()->json([
-                'message' => 'Cannot delete last admin.',
-                "errors"  => [
-                    "roles" => ["Cannot delete last admin."]
-                ],
-            ], 409);
+                'success' => false,
+                'statusCode' => 422,
+                'errors'=> $validator->errors()
+            ], 422);
         }
+
+        Gate::authorize('delete', $id);        
+
+        $user = User::findOrFail($id);
 
         $user->delete();
         $user->tokens()->delete();
@@ -192,7 +216,7 @@ class UserController extends Controller
         security: [["passport" => []]],
         parameters: [
             new OA\Parameter(
-                name: "user_id",
+                name: "id",
                 description: "User ID",
                 in: "path",
                 required: true,
@@ -227,10 +251,10 @@ class UserController extends Controller
             )
         ]
     )]
-    public function addPermissions(Request $request, int $user_id) {
+    public function addPermissions(Request $request, int $id) {
         $permAssignClass = new PermissionAssignRequest();  
         $validator = Validator::make([
-            'user_id' => $user_id,
+            'id' => $id,
             'permission_ids' => $request->input('permission_ids')
         ], $permAssignClass->rules());
         if ($validator->fails()) {
@@ -241,15 +265,17 @@ class UserController extends Controller
             ], 422);
         }
 
+        Gate::authorize('createPermissionUser', $id);
+
         $permissionsData = $validator->validated()['permission_ids'];
-        $user = User::findOrFail($user_id);
+        $user = User::findOrFail($id);
         $user->permissions()->syncWithoutDetaching($permissionsData);
 
         return response()->json([
             'success' => true,
             'statusCode' => 201,
             'message' => 'Permissions have been added successfully.',
-            'data' => ['user_id' => $user_id, 'permission_ids' => $permissionsData],
+            'data' => ['id' => $id, 'permission_ids' => $permissionsData],
         ], 201);
     }    
 
@@ -261,7 +287,7 @@ class UserController extends Controller
         security: [["passport" => []]],
         parameters: [
             new OA\Parameter(
-                name: "user_id",
+                name: "id",
                 description: "User ID",
                 in: "path",
                 required: true,
@@ -296,10 +322,10 @@ class UserController extends Controller
             )
         ]
     )]
-    public function removePermissions(Request $request, int $user_id) {
+    public function removePermissions(Request $request, int $id) {
         $permDetachClass = new PermissionAssignRequest();  
         $validator = Validator::make([
-            'user_id' => $user_id,
+            'id' => $id,
             'permission_ids' => $request->input('permission_ids')
         ], $permDetachClass->rules());
 
@@ -311,69 +337,47 @@ class UserController extends Controller
             ], 422);
         }
 
+        Gate::authorize('deletePermissionUser', $id);
+
         $permissionsData = $validator->validated()['permission_ids'];
-        $user = User::findOrFail($user_id);
+        $user = User::findOrFail($id);
         $user->permissions()->detach($permissionsData);
 
         return response()->json([
             'success' => true,
             'statusCode' => 201,
             'message' => 'Permissions have been removed successfully.',
-            'data' => ['user_id' => $user_id, 'permission_ids' => $permissionsData],
+            'data' => ['id' => $id, 'permission_ids' => $permissionsData],
         ], 201);
     }
     
     #[OA\Get(
-        path: "/api/users/{user_id}/permissions/{permission_id}",
-        summary: "Check if permission of user exists by ID",
-        description: "Returns true if user's permission exists, otherwise false",
+        path: "/api/users/{id}/permissions",
+        summary: "Get user's permissions",
+        description: "Returns array of user's permissions",
         tags: ["Users"],
         security: [["passport" => []]],
         parameters: [
             new OA\Parameter(
-                name: "user_id",
+                name: "id",
                 description: "User ID",
                 in: "path",
                 required: true,
                 schema: new OA\Schema(type: "integer")
-            ),
-            new OA\Parameter(
-                name: "permission_id",
-                description: "Permission ID",
-                in: "path",
-                required: true,
-                schema: new OA\Schema(type: "integer")
-            ),            
+            ),          
         ],
         responses: [
             new OA\Response(
                 response: 200,
-                description: "Permission status",
+                description: "Successful operation",
                 content: new OA\JsonContent(
-                    oneOf: [
-                        new OA\Schema(
-                            schema: "Permission status",
-                            title: "Permission status",
-                            description: "Whether or not user has a permission",
-                            required: ["status"],
-                            properties: [
-                                new OA\Property(property: "status", type: "boolean", default: false),
-                            ]                            
-                        ),
-                    ],
-                    examples: [
-                        new OA\Examples(
-                            example: "true",
-                            summary: "User has permission",
-                            value: ["userPermitted" => true]
-                        ),
-                        new OA\Examples(
-                            example: "false",
-                            summary: "User does not have permission",
-                            value: ["userPermitted" => false]
-                        ),
-                    ]
+                    type: "array",
+                    items: new OA\Items(ref: "#/components/schemas/Permission")
                 )
+            ),
+            new OA\Response(
+                response: 401,
+                description: "Unauthenticated"
             ),
             new OA\Response(
                 response: 422,
@@ -381,14 +385,8 @@ class UserController extends Controller
             ),
         ]
     )]
-    public function checkPermission(int $user_id, int $permission_id) {
-        $validator = Validator::make([
-            'user_id' => $user_id,
-            'permission_id' => $permission_id
-        ], [
-            'user_id' => ['required', 'integer'],
-            'permission_id' => ['required', 'integer'],
-        ]);
+    public function getPermissions(int $id) {
+        $validator = Validator::make(['id' => $id], ['id' => ['required', 'integer']]);
 
         if ($validator->fails()) {
             return response()->json([
@@ -398,15 +396,13 @@ class UserController extends Controller
             ], 422);
         }
 
-        $exists = DB::table('permission_user')
-            ->where('user_id', $user_id)
-            ->where('permission_id', $permission_id)
-            ->exists();
+        Gate::authorize('readPermissionUser', $id);
 
+        $permissions = User::findOrFail($id)->permissions;
         return response()->json([
             'success' => true,
             'statusCode' => 200,
-            'data' => ['userPermitted' => $exists],
+            'data' => ['permissions' => $permissions],
         ], 200);
-    }   
+    } 
 }

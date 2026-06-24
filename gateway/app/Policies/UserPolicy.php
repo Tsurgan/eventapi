@@ -3,63 +3,130 @@
 namespace App\Policies;
 
 use App\Models\User;
+use App\Models\Permission;
 use Illuminate\Auth\Access\Response;
 
 class UserPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
-    public function viewAny(User $user): bool
+
+    public function viewAll(User $authUser): bool
     {
-        return false;
+        $isPermitted = false;
+
+        if ($authUser->permissions()->where('name', 'read other user')->exists()) 
+        {
+            $isPermitted = true;
+        }
+
+        return $isPermitted;       
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, User $model): bool
+    public function view(User $authUser, int $targetUserId): bool
     {
-        return false;
-    }
+        $isPermitted = false;
 
-    /**
-     * Determine whether the user can create models.
-     */
-    public function create(User $user): bool
-    {
-        return false;
+        if (
+            ($authUser->id === $targetUserId) 
+            || ($authUser->permissions()->where('name', 'read other user')->exists())
+        ) {
+            $isPermitted = true;
+        }
+
+        return $isPermitted;       
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, User $model): bool
+    public function update(User $authUser, int $targetUserId): bool
     {
-        return false;
+        $isPermitted = false;
+
+        if (
+            ($authUser->id === $targetUserId) 
+            || ($authUser->permissions()->where('name', 'update other user')->exists())
+        ) {
+            $isPermitted = true;
+        }
+
+        return $isPermitted; 
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, User $model): bool
+    public function delete(User $authUser, int $targetUserId): bool
     {
-        return false;
+        $isPermitted = false;
+
+        // first check for basic permission
+        if (
+            ($authUser->id === $targetUserId) 
+            || ($authUser->permissions()->where('name', 'delete other user')->exists())
+        ) {
+            // second check for last admin
+            $targetUser = User::findOrFail($targetUserId);
+            if (
+                (Permission::where('name', 'create permission_user')->users->count() == 1)
+                && ($targetUser->permissions()->where('name', 'create permission_user')->exists())
+            ) {
+                $isPermitted = true;
+            }    
+        }    
+        return $isPermitted;
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, User $model): bool
-    {
-        return false;
-    }
+
+
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * Determine whether the user can create models.
      */
-    public function forceDelete(User $user, User $model): bool
+    public function createPermissionUser(User $authUser): bool
     {
-        return false;
+        $isPermitted = false;
+
+        if ($authUser->permissions()->where('name', 'create permission_user')->exists()) {
+            $isPermitted = true;
+        }
+
+        return $isPermitted; 
     }
+    
+    public function deletePermissionUser(User $authUser): bool
+    {
+        $isPermitted = false;
+
+        if ($authUser->permissions()->where('name', 'delete permission_user')->exists()) {
+            $isPermitted = true;
+        }
+
+        return $isPermitted; 
+    }
+
+    public function readPermissionUser(User $authUser): bool
+    {
+        $isPermitted = false;
+
+        if ($authUser->permissions()->where('name', 'read permission_user')->exists()) {
+            $isPermitted = true;
+        }
+
+        return $isPermitted; 
+    }
+
+    public function readPermission(User $authUser): bool
+    {
+        $isPermitted = false;
+
+        if ($authUser->permissions()->where('name', 'read permission')->exists()) {
+            $isPermitted = true;
+        }
+
+        return $isPermitted; 
+    }
+
 }
