@@ -8,60 +8,50 @@ use Illuminate\Auth\Access\Response;
 
 class UserPolicy
 {
-
-    public function viewAll(User $authUser): bool
+    public function viewAll(User $authUser): Response
     {
-        $isPermitted = false;
-
-        if ($authUser->permissions()->where('name', 'read other user')->exists()) 
-        {
-            $isPermitted = true;
-        }
-
-        return $isPermitted;       
+        if ($authUser->permissions()->where('name', 'read other user')->exists()) {
+            return Response::allow();
+        } else {
+            return Response::denyAsNotFound(); 
+        }      
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $authUser, int $targetUserId): bool
+    public function view(User $authUser, int $targetUserId): Response
     {
-        $isPermitted = false;
-
         if (
             ($authUser->id === $targetUserId) 
             || ($authUser->permissions()->where('name', 'read other user')->exists())
         ) {
-            $isPermitted = true;
-        }
-
-        return $isPermitted;       
+            return Response::allow();
+        } else {
+            return Response::denyAsNotFound(); 
+        }       
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $authUser, int $targetUserId): bool
+    public function update(User $authUser, int $targetUserId): Response
     {
-        $isPermitted = false;
-
         if (
             ($authUser->id === $targetUserId) 
             || ($authUser->permissions()->where('name', 'update other user')->exists())
         ) {
-            $isPermitted = true;
-        }
-
-        return $isPermitted; 
+            return Response::allow();
+        } else {
+            return Response::denyAsNotFound(); 
+        } 
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $authUser, int $targetUserId): bool
+    public function delete(User $authUser, int $targetUserId): Response
     {
-        $isPermitted = false;
-
         // first check for basic permission
         if (
             ($authUser->id === $targetUserId) 
@@ -73,45 +63,42 @@ class UserPolicy
                 (Permission::where('name', 'create permission_user')->users->count() == 1)
                 && ($targetUser->permissions()->where('name', 'create permission_user')->exists())
             ) {
-                $isPermitted = true;
-            }    
-        }    
-        return $isPermitted;
+                return Response::allow();
+            } else {
+                return Response::deny('Cannot delete last admin', 403); 
+            }
+        } else {
+            return Response::denyAsNotFound(); 
+        }
     }
 
-    public function createPermissionUser(User $authUser): bool
+    public function createPermissionUser(User $authUser): Response
     {
-        $isPermitted = false;
-
         if ($authUser->permissions()->where('name', 'create permission_user')->exists()) {
-            $isPermitted = true;
-        }
-
-        return $isPermitted; 
+            return Response::allow();
+        } else {
+            return Response::denyAsNotFound(); 
+        } 
     }
     
-    public function deletePermissionUser(User $authUser): bool
+    public function deletePermissionUser(User $authUser): Response
     {
-        $isPermitted = false;
-
         if ($authUser->permissions()->where('name', 'delete permission_user')->exists()) {
-            $isPermitted = true;
-        }
-
-        return $isPermitted; 
+            return Response::allow();
+        } else {
+            return Response::denyAsNotFound(); 
+        } 
     }
 
-    public function readPermissionUser(User $authUser, int $targetUserId): bool
+    public function readPermissionUser(User $authUser, int $targetUserId): Response
     {
-        $isPermitted = false;
-
         if (
             ($authUser->id === $targetUserId) 
             || ($authUser->permissions()->where('name', 'read other permission_user')->exists())
         ) {
-            $isPermitted = true;
-        }
-
-        return $isPermitted; 
+            return Response::allow();
+        } else {
+            return Response::denyAsNotFound(); 
+        } 
     }
 }

@@ -8,14 +8,12 @@ use Illuminate\Auth\Access\Response;
 
 class PermissionPolicy
 {
-    public function viewAll(User $authUser): bool
+    public function viewAll(User $authUser): Response
     {
-        $isPermitted = false;
-
         if ($authUser->permissions()->where('name', 'read permission')->exists()) {
-            $isPermitted = true;
+            return Response::allow();
+        } else {
+            return Response::denyAsNotFound(); 
         }
-
-        return $isPermitted; 
     }
 }
