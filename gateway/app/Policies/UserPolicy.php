@@ -79,12 +79,6 @@ class UserPolicy
         return $isPermitted;
     }
 
-
-
-
-    /**
-     * Determine whether the user can create models.
-     */
     public function createPermissionUser(User $authUser): bool
     {
         $isPermitted = false;
@@ -117,16 +111,4 @@ class UserPolicy
 
         return $isPermitted; 
     }
-
-    public function readPermission(User $authUser): bool
-    {
-        $isPermitted = false;
-
-        if ($authUser->permissions()->where('name', 'read permission')->exists()) {
-            $isPermitted = true;
-        }
-
-        return $isPermitted; 
-    }
-
 }

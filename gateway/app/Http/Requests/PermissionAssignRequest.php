@@ -23,7 +23,7 @@ class PermissionAssignRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|integer',
+            'id' => 'required|integer',
             'permission_ids' => 'required|array',
             'permission_ids.*' => 'required|integer',
         ];

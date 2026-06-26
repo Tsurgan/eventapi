@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Permission;
 use OpenApi\Attributes as OA;
+use Illuminate\Support\Facades\Gate;
 
 use Illuminate\Http\Request;
 
@@ -34,6 +35,7 @@ class PermissionController extends Controller
     )]
     public function index()
     {
+        Gate::authorize('viewAll');
         return Permission::all();
     }
 }

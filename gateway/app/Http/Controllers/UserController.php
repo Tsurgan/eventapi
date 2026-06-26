@@ -35,7 +35,8 @@ class UserController extends Controller
             )
         ]
     )]
-    public function index() {
+    public function index() 
+    {
         Gate::authorize('viewAll');
 
         return User::all();
@@ -72,7 +73,8 @@ class UserController extends Controller
             ),            
         ]
     )]
-    public function show(int $id) {
+    public function show(int $id) 
+    {
         $validator = Validator::make(['id' => $id], ['id' => ['required', 'integer']]);
         if ($validator->fails()) {
             return response()->json([
@@ -127,30 +129,31 @@ class UserController extends Controller
             )
         ]
     )]
-    public function update(Request $request, int $id) {
-            $updateClass = new UpdateUserRequest();
-            $validator = Validator::make(['request' => $request->all(), 'id' => $id], $updateClass->rules());
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'statusCode' => 422,
-                    'errors'=> $validator->errors()
-                ], 422);
-            }
-
-            Gate::authorize('update', $id);
-
-            $userData = $validator->validated()['request'];
-            $userData['email_verified_at'] = now();
-            $user = User::findOrFail($id);
-            $user->update($userData);
-
+    public function update(Request $request, int $id) 
+    {
+        $updateClass = new UpdateUserRequest();
+        $validator = Validator::make(['request' => $request->all(), 'id' => $id], $updateClass->rules());
+        if ($validator->fails()) {
             return response()->json([
-                'success' => true,
-                'statusCode' => 201,
-                'message' => 'User has been updated successfully.',
-                'data' => $user,
-            ], 201);
+                'success' => false,
+                'statusCode' => 422,
+                'errors'=> $validator->errors()
+            ], 422);
+        }
+
+        Gate::authorize('update', $id);
+
+        $userData = $validator->validated()['request'];
+        $userData['email_verified_at'] = now();
+        $user = User::findOrFail($id);
+        $user->update($userData);
+
+        return response()->json([
+            'success' => true,
+            'statusCode' => 201,
+            'message' => 'User has been updated successfully.',
+            'data' => $user,
+        ], 201);
     }
 
     #[OA\Delete(
@@ -251,7 +254,8 @@ class UserController extends Controller
             )
         ]
     )]
-    public function addPermissions(Request $request, int $id) {
+    public function addPermissions(Request $request, int $id) 
+    {
         $permAssignClass = new PermissionAssignRequest();  
         $validator = Validator::make([
             'id' => $id,
@@ -322,7 +326,8 @@ class UserController extends Controller
             )
         ]
     )]
-    public function removePermissions(Request $request, int $id) {
+    public function removePermissions(Request $request, int $id) 
+    {
         $permDetachClass = new PermissionAssignRequest();  
         $validator = Validator::make([
             'id' => $id,
@@ -385,7 +390,8 @@ class UserController extends Controller
             ),
         ]
     )]
-    public function getPermissions(int $id) {
+    public function getPermissions(int $id) 
+    {
         $validator = Validator::make(['id' => $id], ['id' => ['required', 'integer']]);
 
         if ($validator->fails()) {
