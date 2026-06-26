@@ -104,14 +104,17 @@ class RolePolicy
         return $isPermitted; 
     }
 
-    public function readPermissionRole(User $authUser): bool
+    public function readPermissionRole(User $authUser, int $roleId): bool
     {
         $isPermitted = false;
 
-        if ($authUser->permissions()->where('name', 'read permission_role')->exists()) {
+        if (
+            ($authUser->role->id == $roleId) 
+            || ($authUser->permissions()->where('name', 'read other permission_role')->exists())
+        ) {
             $isPermitted = true;
         }
 
-        return $isPermitted; 
+        return $isPermitted;
     }
 }

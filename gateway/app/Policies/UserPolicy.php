@@ -101,11 +101,14 @@ class UserPolicy
         return $isPermitted; 
     }
 
-    public function readPermissionUser(User $authUser): bool
+    public function readPermissionUser(User $authUser, int $targetUserId): bool
     {
         $isPermitted = false;
 
-        if ($authUser->permissions()->where('name', 'read permission_user')->exists()) {
+        if (
+            ($authUser->id === $targetUserId) 
+            || ($authUser->permissions()->where('name', 'read other permission_user')->exists())
+        ) {
             $isPermitted = true;
         }
 

@@ -21,12 +21,13 @@ Route::group(['middleware' => ['auth:api']], function () {
 
     Route::get('/permissioss', [PermissionController::class, 'index'])->name("permissions.index");
     Route::post('/users/{id}/permissions', [UserController::class, 'addPermissions'])->name("users.addPermissions");
-    Route::post('/users/{id}/permission-deletions', [UserController::class, 'removePermissions'])->name("users.removePermissions");
-    Route::post('/users/{id}/permissions/{permission_id}', [UserController::class, 'checkPermission'])->name("users.checkPermission");    
+    Route::post('/users/{id}/permission-deletions', [UserController::class, 'removePermissions'])->name("users.removePermissions");   
     Route::post('/logout', [AuthController::class, 'logout'])->name("logout");
 
     Route::get('/roles', [RoleController::class, 'index'])->name("roles.index");
     Route::get('/roles/{id}', [RoleController::class, 'show'])->name("roles.show");
     Route::put('/roles/{id}', [RoleController::class, 'update'])->name("roles.update");
     Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->name("roles.destroy");    
+    Route::post('/roles/{id}/permissions', [RoleController::class, 'addPermissions'])->name("roles.addPermissions");
+    Route::post('/roles/{id}/permission-deletions', [RoleController::class, 'removePermissions'])->name("roles.removePermissions");   
 });

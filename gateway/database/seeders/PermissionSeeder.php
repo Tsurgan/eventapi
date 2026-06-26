@@ -15,19 +15,20 @@ class PermissionSeeder extends Seeder
     {
         DB::table('permissions')->insert(
             [
-                ['name' => 'read other users'],
-                ['name' => 'update other users'],
-                ['name' => 'delete other users'],
-                ['name' => 'create permission_set'],
-                ['name' => 'read permission_set'],
-                ['name' => 'update permission_set'],
-                ['name' => 'delete permission_set'],
-                ['name' => 'create permission_user_connection'],
-                ['name' => 'read permission_user_connection'],
-                ['name' => 'delete permission_user_connection'],
-                ['name' => 'create permission_set_connection'],
-                ['name' => 'read permission_set_connection'],
-                ['name' => 'delete permission_set_connection'],  
+                ['name' => 'read other user'],
+                ['name' => 'update other user'],
+                ['name' => 'delete other user'],
+                ['name' => 'create role'],
+                ['name' => 'read other role'],
+                ['name' => 'update role'],
+                ['name' => 'delete role'],
+                ['name' => 'create permission_user'],
+                ['name' => 'read other permission_user'],
+                ['name' => 'delete permission_user'],
+                ['name' => 'create permission_role'],
+                ['name' => 'read other permission_role'],
+                ['name' => 'delete permission_role'],  
+                ['name' => 'read permission'], 
             ]       
         );
         
