@@ -30,14 +30,14 @@ class UserController extends Controller
                 )
             ),
             new OA\Response(
-                response: 401,
-                description: "Unauthenticated"
+                response: 404,
+                description: "Not Found"
             )
         ]
     )]
     public function index() 
     {
-        Gate::authorize('viewAll');
+        Gate::authorize('viewAll', User::class);
 
         return User::all();
     }
@@ -84,7 +84,7 @@ class UserController extends Controller
             ], 422);
         }
 
-        Gate::authorize('view', $id);
+        Gate::authorize('view', [User::class, $id]);
 
         return User::findOrFail($id);
     }
@@ -141,19 +141,21 @@ class UserController extends Controller
             ], 422);
         }
 
-        Gate::authorize('update', $id);
+        Gate::authorize('update', [User::class, $id]);
 
         $userData = $validator->validated()['request'];
-        $userData['email_verified_at'] = now();
+        if (isset($userData['password'])) {
+            $userData['email_verified_at'] = now();
+        }
         $user = User::findOrFail($id);
-        $user->update($userData);
+        //$user->update($userData->toArray());
 
         return response()->json([
             'success' => true,
-            'statusCode' => 201,
+            'statusCode' => 200,
             'message' => 'User has been updated successfully.',
-            'data' => $user,
-        ], 201);
+            'data' =>$validator->validated()['request'],
+        ], 200);
     }
 
     #[OA\Delete(
@@ -202,7 +204,7 @@ class UserController extends Controller
             ], 422);
         }
 
-        Gate::authorize('delete', $id);        
+        Gate::authorize('delete', [User::class, $id]);        
 
         $user = User::findOrFail($id);
 
@@ -269,7 +271,7 @@ class UserController extends Controller
             ], 422);
         }
 
-        Gate::authorize('createPermissionUser', $id);
+        Gate::authorize('createPermissionUser', [User::class, $id]);
 
         $permissionsData = $validator->validated()['permission_ids'];
         $user = User::findOrFail($id);
@@ -342,7 +344,7 @@ class UserController extends Controller
             ], 422);
         }
 
-        Gate::authorize('deletePermissionUser', $id);
+        Gate::authorize('deletePermissionUser', [User::class, $id]);
 
         $permissionsData = $validator->validated()['permission_ids'];
         $user = User::findOrFail($id);
@@ -402,7 +404,7 @@ class UserController extends Controller
             ], 422);
         }
 
-        Gate::authorize('readPermissionUser', $id);
+        Gate::authorize('readPermissionUser', [User::class, $id]);
 
         $permissions = User::findOrFail($id)->permissions;
         return response()->json([

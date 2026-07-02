@@ -35,7 +35,7 @@ class PermissionController extends Controller
     )]
     public function index()
     {
-        Gate::authorize('viewAll');
+        Gate::authorize('viewAll', Permission::class);
         return Permission::all();
     }
 }

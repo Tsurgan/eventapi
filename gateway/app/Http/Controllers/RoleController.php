@@ -37,7 +37,7 @@ class RoleController extends Controller
     )]
     public function index()
     {
-        Gate::authorize('viewAll');
+        Gate::authorize('viewAll', Role::class);
         return Role::all();
     }
 
@@ -75,7 +75,7 @@ class RoleController extends Controller
             'name' => ['required', 'unique:roles'],
         ]);
 
-        Gate::authorize('create');
+        Gate::authorize('create', Role::class);
 
         $role = Role::create($validated);
 
@@ -132,7 +132,7 @@ class RoleController extends Controller
             ], 422);
         }
 
-        Gate::authorize('view', $id);
+        Gate::authorize('view', [Role::class, $id]);
 
         return Role::findOrFail($id);
     }
@@ -323,7 +323,7 @@ class RoleController extends Controller
             ], 422);
         }
 
-        Gate::authorize('createPermissionRole', $id);
+        Gate::authorize('createPermissionRole', [Role::class, $id]);
 
         $permissionsData = $validator->validated()['permission_ids'];
         $role = Role::findOrFail($id);
@@ -396,7 +396,7 @@ class RoleController extends Controller
             ], 422);
         }
 
-        Gate::authorize('deletePermissionRole', $id);
+        Gate::authorize('deletePermissionRole', [Role::class, $id]);
 
         $permissionsData = $validator->validated()['permission_ids'];
         $role = Role::findOrFail($id);
@@ -456,7 +456,7 @@ class RoleController extends Controller
             ], 422);
         }
 
-        Gate::authorize('readPermissionRole', $id);
+        Gate::authorize('readPermissionRole', [Role::class, $id]);
 
         $permissions = Role::findOrFail($id)->permissions;
         return response()->json([
