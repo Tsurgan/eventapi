@@ -4,6 +4,20 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use OpenApi\Attributes as OA;
+
+#[OA\Schema(
+    schema: "PermissionAssignRequest",
+    properties: [
+        new OA\Property(
+            property: "permission_ids", 
+            type: "array",
+            items: new OA\Items(type: "integer"),
+            example: "[2,3]",
+        ),
+    ]
+)]
+
 
 class PermissionAssignRequest extends FormRequest
 {
@@ -23,7 +37,6 @@ class PermissionAssignRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => 'required|integer',
             'permission_ids' => 'required|array',
             'permission_ids.*' => 'required|integer',
         ];

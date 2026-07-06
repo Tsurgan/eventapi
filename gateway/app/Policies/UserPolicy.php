@@ -13,7 +13,7 @@ class UserPolicy
         if ($authUser->permissions()->where('name', 'read other user')->exists()) {
             return Response::allow();
         } else {
-            return Response::denyAsNotFound(); 
+            return Response::denyAsNotFound();
         }      
     }
 

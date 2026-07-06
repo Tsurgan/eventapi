@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\Contracts\OAuthenticatable;
 use Laravel\Passport\HasApiTokens;
+use Illuminate\Support\Facades\DB;
 
 use OpenApi\Attributes as OA;
 
@@ -78,4 +79,23 @@ class User extends Authenticatable implements OAuthenticatable
     {
         return $this->belongsToMany(Permission::class);
     }    
+
+    public function assignRolePermissions(int $roleId)
+    {
+        DB::transaction(function () use ($roleId) {
+            // Delete existing user permissions
+            DB::table('permission_user')->where('user_id', $this->id)->delete();
+            $rolePermissions = DB::table('permission_role')->where('role_id', $roleId)->get()->toArray();
+
+            // get new role permissions and replace role_id with new user_id
+            $newPermissions = collect($rolePermissions)->map(function ($permission) use ($roleId) {
+                return array_merge(data_forget($permission,'role_id'), [
+                    'user_id' => $this->id,
+                    'created_at' => now(),
+                ]);
+            })->toArray();
+
+            DB::table('permission_users')->insert($newPermissions);
+        });
+    }
 }

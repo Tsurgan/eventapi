@@ -123,15 +123,6 @@ class RoleController extends Controller
     )]
     public function show(int $id)
     {
-        $validator = Validator::make(['id' => $id], ['id' => ['required', 'integer']]);
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'statusCode' => 422,
-                'errors'=> $validator->errors()
-            ], 422);
-        }
-
         Gate::authorize('view', [Role::class, $id]);
 
         return Role::findOrFail($id);
@@ -159,8 +150,7 @@ class RoleController extends Controller
             required: true,
             content: new OA\JsonContent(
                 properties: [
-                    new OA\Property(property: "name", type: "string", example: "Jane Doe"),
-                    new OA\Property(property: "email", type: "string", format: "email", example: "jane@example.com")
+                    new OA\Property(property: "name", type: "string", example: "Manager"),
                 ]
             )
         ),
@@ -183,11 +173,9 @@ class RoleController extends Controller
     public function update(Request $request, int $id)
     {
         $validator = Validator::make([
-            'name' => $request->input('name'), 
-            'id' => $id
+            'name' => $request->input('name'),
         ],[
             'name' => ['required', 'unique:roles,name,'.$id],
-            'id' => ['required', 'integer']
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -249,15 +237,6 @@ class RoleController extends Controller
     )]   
     public function destroy(int $id)
     {
-        $validator = Validator::make(['id' => $id], ['id' => ['required', 'integer']]);
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'statusCode' => 422,
-                'errors'=> $validator->errors()
-            ], 422);
-        }
-
         Gate::authorize('delete');
 
         $role = Role::findOrFail($id);
@@ -282,16 +261,7 @@ class RoleController extends Controller
         ],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(
-                properties: [
-                    new OA\Property(
-                        property: "permission_ids", 
-                        type: "array",
-                        items: new OA\Items(type: "integer"),
-                        example: "[2]",
-                    ),
-                ]
-            )
+            content: new OA\JsonContent(ref:"#/components/schemas/PermissionAssignRequest")
         ),
         responses: [
             new OA\Response(
@@ -308,24 +278,11 @@ class RoleController extends Controller
             )
         ]
     )]
-    public function addPermissions(Request $request, int $id) 
+    public function addPermissions(PermissionAssignRequest $request, int $id) 
     {
-        $permAssignClass = new PermissionAssignRequest();  
-        $validator = Validator::make([
-            'id' => $id,
-            'permission_ids' => $request->input('permission_ids')
-        ], $permAssignClass->rules());
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'statusCode' => 422,
-                'errors'=> $validator->errors()
-            ], 422);
-        }
-
         Gate::authorize('createPermissionRole', [Role::class, $id]);
 
-        $permissionsData = $validator->validated()['permission_ids'];
+        $permissionsData = $request->validated();
         $role = Role::findOrFail($id);
         $role->permissions()->syncWithoutDetaching($permissionsData);
 
@@ -354,16 +311,7 @@ class RoleController extends Controller
         ],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(
-                properties: [
-                    new OA\Property(
-                        property: "permission_ids", 
-                        type: "array",
-                        items: new OA\Items(type: "integer"),
-                        example: "[2]",
-                    ),
-                ]
-            )
+            content: new OA\JsonContent(ref:"#/components/schemas/PermissionAssignRequest")
         ),
         responses: [
             new OA\Response(
@@ -380,25 +328,11 @@ class RoleController extends Controller
             )
         ]
     )]
-    public function removePermissions(Request $request, int $id) 
+    public function removePermissions(PermissionAssignRequest $request, int $id) 
     {
-        $permDetachClass = new PermissionAssignRequest();  
-        $validator = Validator::make([
-            'id' => $id,
-            'permission_ids' => $request->input('permission_ids')
-        ], $permDetachClass->rules());
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'statusCode' => 422,
-                'errors'=> $validator->errors()
-            ], 422);
-        }
-
         Gate::authorize('deletePermissionRole', [Role::class, $id]);
 
-        $permissionsData = $validator->validated()['permission_ids'];
+        $permissionsData = $request->validated();
         $role = Role::findOrFail($id);
         $role->permissions()->detach($permissionsData);
 
@@ -446,16 +380,6 @@ class RoleController extends Controller
     )]
     public function getPermissions(int $id) 
     {
-        $validator = Validator::make(['id' => $id], ['id' => ['required', 'integer']]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'statusCode' => 422,
-                'errors'=> $validator->errors()
-            ], 422);
-        }
-
         Gate::authorize('readPermissionRole', [Role::class, $id]);
 
         $permissions = Role::findOrFail($id)->permissions;

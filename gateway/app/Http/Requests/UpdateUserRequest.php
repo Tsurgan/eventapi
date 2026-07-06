@@ -5,14 +5,18 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use OpenApi\Attributes as OA;
+use Illuminate\Support\Facades\Gate;
+use App\Models\User;
 
 #[OA\Schema(
     schema: "UpdateUserRequest",
     properties: [
         new OA\Property(property: "name", type: "string", example: "john1doe"),
         new OA\Property(property: "email", type: "string", example: "john@example.com"),
+        new OA\Property(property: "phone", type: "string", example: "89999999999"),
         new OA\Property(property: "password", type: "string", example: "secret1234"),
-        new OA\Property(property: "password_confirmation", type: "string", example: "secret1234")
+        new OA\Property(property: "password_confirmation", type: "string", example: "secret1234"),
+        new OA\Property(property: "role_id", type: "integer", example: "2"),
     ]
 )]
 
@@ -23,7 +27,7 @@ class UpdateUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return Gate::allow('update', [User::class, $this->route('id')]);
     }
 
     /**
@@ -33,14 +37,12 @@ class UpdateUserRequest extends FormRequest
      */
     public function rules(): array
     {
-        $userId = $this->user()->id;
         return [
-            'request' => [
-                'name' => ['required', 'max:255'],
-                'email' => ['required', 'email', 'unique:users,email,'.$userId],
-                'password' => ['required', 'min:6', 'confirmed'],
-            ],
-            'id' => 'required|integer',
+            'name' => ['sometimes', 'max:255'],
+            'email' => ['sometimes', 'email', 'unique:users,email,' . $this->route('id')],
+            'phone' => ['sometimes', 'digits_between:10,15'],
+            'password' => ['sometimes', 'min:6', 'confirmed'],
+            'role_id' => ['sometimes','integer'],
         ];
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PermissionAssignRequest;
 use App\Models\User;
+use App\Models\Role;
 use App\Models\Permission;
 use OpenApi\Attributes as OA;
 use Illuminate\Http\Request;
@@ -75,15 +76,6 @@ class UserController extends Controller
     )]
     public function show(int $id) 
     {
-        $validator = Validator::make(['id' => $id], ['id' => ['required', 'integer']]);
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'statusCode' => 422,
-                'errors'=> $validator->errors()
-            ], 422);
-        }
-
         Gate::authorize('view', [User::class, $id]);
 
         return User::findOrFail($id);
@@ -106,12 +98,7 @@ class UserController extends Controller
         ],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(
-                properties: [
-                    new OA\Property(property: "name", type: "string", example: "Jane Doe"),
-                    new OA\Property(property: "email", type: "string", format: "email", example: "jane@example.com")
-                ]
-            )
+            content: new OA\JsonContent(ref:"#/components/schemas/UpdateUserRequest")
         ),
         responses: [
             new OA\Response(
@@ -129,32 +116,43 @@ class UserController extends Controller
             )
         ]
     )]
-    public function update(Request $request, int $id) 
+    public function update(UpdateUserRequest $request, int $id) 
     {
-        $updateClass = new UpdateUserRequest();
-        $validator = Validator::make(['request' => $request->all(), 'id' => $id], $updateClass->rules());
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'statusCode' => 422,
-                'errors'=> $validator->errors()
-            ], 422);
-        }
+        $user = User::findOrFail($id);
 
-        Gate::authorize('update', [User::class, $id]);
-
-        $userData = $validator->validated()['request'];
+        $userData = $request->validated();
         if (isset($userData['password'])) {
             $userData['email_verified_at'] = now();
         }
-        $user = User::findOrFail($id);
-        //$user->update($userData->toArray());
+        if (isset($userData['role_id'])) {
+            //compare target user's perms with new role's perms
+            //check for create|delete permission_user
+            $role = Role::findOrFail($userData['role_id']);
+
+            $userPermissions = $user->permissions();
+            $rolePermissions = $role->permissions();
+
+            //if there are permissions in role not present in user, ask for create
+            if (!empty(array_diff($rolePermissions, $userPermissions))) {
+                Gate::authorize('createPermissionUser', [User::class, $id]);
+            }
+            // if there are permissions in user not present in role, ask for delete
+            if (!empty(array_diff($userPermissions, $rolePermissions))) {
+                Gate::authorize('deletePermissionUser', [User::class, $id]);   
+            }
+
+            //replace user permissions with role permissions if both checks are passed or bypassed
+            $user->assignRolePermissions($userData['role_id']);
+
+        }
+        
+        $user->update($userData);
 
         return response()->json([
             'success' => true,
             'statusCode' => 200,
             'message' => 'User has been updated successfully.',
-            'data' =>$validator->validated()['request'],
+            'data' =>$request,
         ], 200);
     }
 
@@ -194,16 +192,6 @@ class UserController extends Controller
     )]    
     public function destroy(int $id)
     {
-        $validator = Validator::make(['id' => $id], ['id' => ['required', 'integer']]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'statusCode' => 422,
-                'errors'=> $validator->errors()
-            ], 422);
-        }
-
         Gate::authorize('delete', [User::class, $id]);        
 
         $user = User::findOrFail($id);
@@ -230,16 +218,7 @@ class UserController extends Controller
         ],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(
-                properties: [
-                    new OA\Property(
-                        property: "permission_ids", 
-                        type: "array",
-                        items: new OA\Items(type: "integer"),
-                        example: "[2]",
-                    ),
-                ]
-            )
+            content: new OA\JsonContent(ref:"#/components/schemas/PermissionAssignRequest")
         ),
         responses: [
             new OA\Response(
@@ -256,24 +235,11 @@ class UserController extends Controller
             )
         ]
     )]
-    public function addPermissions(Request $request, int $id) 
+    public function addPermissions(PermissionAssignRequest $request, int $id) 
     {
-        $permAssignClass = new PermissionAssignRequest();  
-        $validator = Validator::make([
-            'id' => $id,
-            'permission_ids' => $request->input('permission_ids')
-        ], $permAssignClass->rules());
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'statusCode' => 422,
-                'errors'=> $validator->errors()
-            ], 422);
-        }
+        Gate::authorize('createPermissionUser', [User::class, $id]); 
 
-        Gate::authorize('createPermissionUser', [User::class, $id]);
-
-        $permissionsData = $validator->validated()['permission_ids'];
+        $permissionsData = $request->validated();
         $user = User::findOrFail($id);
         $user->permissions()->syncWithoutDetaching($permissionsData);
 
@@ -302,16 +268,7 @@ class UserController extends Controller
         ],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(
-                properties: [
-                    new OA\Property(
-                        property: "permission_ids", 
-                        type: "array",
-                        items: new OA\Items(type: "integer"),
-                        example: "[2]",
-                    ),
-                ]
-            )
+            content: new OA\JsonContent(ref:"#/components/schemas/PermissionAssignRequest")
         ),
         responses: [
             new OA\Response(
@@ -328,25 +285,10 @@ class UserController extends Controller
             )
         ]
     )]
-    public function removePermissions(Request $request, int $id) 
+    public function removePermissions(PermissionAssignRequest $request, int $id) 
     {
-        $permDetachClass = new PermissionAssignRequest();  
-        $validator = Validator::make([
-            'id' => $id,
-            'permission_ids' => $request->input('permission_ids')
-        ], $permDetachClass->rules());
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'statusCode' => 422,
-                'errors'=> $validator->errors()
-            ], 422);
-        }
-
-        Gate::authorize('deletePermissionUser', [User::class, $id]);
-
-        $permissionsData = $validator->validated()['permission_ids'];
+        Gate::authorize('deletePermissionUser', [User::class, $id]); 
+        $permissionsData = $request->validated();
         $user = User::findOrFail($id);
         $user->permissions()->detach($permissionsData);
 
@@ -394,16 +336,6 @@ class UserController extends Controller
     )]
     public function getPermissions(int $id) 
     {
-        $validator = Validator::make(['id' => $id], ['id' => ['required', 'integer']]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'statusCode' => 422,
-                'errors'=> $validator->errors()
-            ], 422);
-        }
-
         Gate::authorize('readPermissionUser', [User::class, $id]);
 
         $permissions = User::findOrFail($id)->permissions;

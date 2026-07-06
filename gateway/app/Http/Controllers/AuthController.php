@@ -37,19 +37,9 @@ class AuthController extends Controller
         response:422,
         description: "Invalid request",
     )]
-    public function register(Request $request): JsonResponse
+    public function register(RegisterRequest $request): JsonResponse
     {
-        $registerClass = new RegisterRequest();
-        $validator = Validator::make($request->all(), $registerClass->rules());
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'statusCode' => 422,
-                'errors'=> $validator->errors()
-            ], 422);
-        }
-
-        $userData = $validator->validated();
+        $userData = $request->validated();
         $userData['email_verified_at'] = now();
         $user = User::create($userData);
 
