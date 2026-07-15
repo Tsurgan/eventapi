@@ -85,17 +85,58 @@ class User extends Authenticatable implements OAuthenticatable
         DB::transaction(function () use ($roleId) {
             // Delete existing user permissions
             DB::table('permission_user')->where('user_id', $this->id)->delete();
-            $rolePermissions = DB::table('permission_role')->where('role_id', $roleId)->get()->toArray();
+            $rolePermissions = DB::table('permission_role')->where('role_id', $roleId)->get();
 
+            $newUserPermissions = [];
             // get new role permissions and replace role_id with new user_id
-            $newPermissions = collect($rolePermissions)->map(function ($permission) use ($roleId) {
-                return array_merge(data_forget($permission,'role_id'), [
-                    'user_id' => $this->id,
-                    'created_at' => now(),
-                ]);
-            })->toArray();
+            foreach ($rolePermissions as $permission) {
+                unset($permission->role_id);
+                unset($permission->id);
+                $permission->user_id = $this->id;
+                $permission->created_at = now();
 
-            DB::table('permission_users')->insert($newPermissions);
+                $newUserPermissions[] = (array)$permission;
+            }
+            DB::table('permission_user')->insert($newUserPermissions);
         });
+    }
+
+    /*
+    * Check whether given user is only remaining one with a given permission. 
+    * Default permission is "create permission_user".
+    */
+    public static function isLastPermissionUser(int $targetUserId, int $permissionId = -1) {
+        if ($permissionId == -1) {
+            $permissionId = DB::table('permissions')
+                ->where('name', 'create permission_user')
+                ->first('id')->id;
+        }
+        $targetUserHasPermission = DB::table('permission_user')
+            ->where('permission_id', $permissionId)
+            ->where('user_id', $targetUserId)
+            ->exists();
+
+        if ($targetUserHasPermission) {
+            $twoOrLessUsersHavePermission = DB::table('permission_user')
+                ->where('permission_id', $permissionId)
+                ->limit(2)
+                ->count();
+
+            if ($twoOrLessUsersHavePermission < 2) {
+                return true;
+            }
+        }
+        
+        return false;
+        /*$targetUser = User::findOrFail($targetUserId);
+        $createPermissionUser = Permission::where('name', 'create permission_user')->first();
+        if (
+            ($createPermissionUser->users()->count() == 1)
+            && ($targetUser->permissions()->where('name', 'create permission_user')->exists())
+        ) {
+            return true; 
+        } else {
+            return false;
+        }*/
     }
 }

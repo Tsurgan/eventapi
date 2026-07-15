@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\PermissionAssignRequest;
+use App\Http\Requests\UpdateRoleRequest;
+use Illuminate\Support\Facades\Auth;
 
 class RoleController extends Controller
 {
@@ -74,7 +77,6 @@ class RoleController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'unique:roles'],
         ]);
-
         Gate::authorize('create', Role::class);
 
         $role = Role::create($validated);
@@ -82,7 +84,7 @@ class RoleController extends Controller
         return response()->json([
             'success' => true,
             'statusCode' => 201,
-            'message' => 'Role has been updated successfully.',
+            'message' => 'Role has been created successfully.',
             'data' => $role,
         ], 201);
     }
@@ -148,11 +150,7 @@ class RoleController extends Controller
         ],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(
-                properties: [
-                    new OA\Property(property: "name", type: "string", example: "Manager"),
-                ]
-            )
+            content: new OA\JsonContent(ref:"#/components/schemas/UpdateRoleRequest")
         ),
         responses: [
             new OA\Response(
@@ -170,32 +168,17 @@ class RoleController extends Controller
             )
         ]
     )]
-    public function update(Request $request, int $id)
+    public function update(UpdateRoleRequest $request, int $id)
     {
-        $validator = Validator::make([
-            'name' => $request->input('name'),
-        ],[
-            'name' => ['required', 'unique:roles,name,'.$id],
-        ]);
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'statusCode' => 422,
-                'errors'=> $validator->errors()
-            ], 422);
-        }
-
-        Gate::authorize('update');
-
         $role = Role::findOrFail($id);
-        $role->update($request);
+        $role->update($request->validated());
 
         return response()->json([
             'success' => true,
-            'statusCode' => 201,
+            'statusCode' => 200,
             'message' => 'Role has been updated successfully.',
             'data' => $role,
-        ], 201);
+        ], 200);
     }
 
     /**
@@ -237,11 +220,19 @@ class RoleController extends Controller
     )]   
     public function destroy(int $id)
     {
-        Gate::authorize('delete');
+        Gate::authorize('delete', [Role::class, $id]);
 
         $role = Role::findOrFail($id);
-        $role->delete();
-        return response()->json(null, 204);
+        if ($role->users()->exists()) {
+            return response()->json([
+                'success' => true,
+                'statusCode' => 409,
+                'message' => 'Users with this role still exist.',
+            ], 409);
+        } else {
+            $role->delete();
+            return response()->json(null, 204);
+        }
     }
 
     #[OA\Post(
@@ -282,16 +273,16 @@ class RoleController extends Controller
     {
         Gate::authorize('createPermissionRole', [Role::class, $id]);
 
-        $permissionsData = $request->validated();
+        $permissionsData = $request->validated()['permission_ids'];
         $role = Role::findOrFail($id);
         $role->permissions()->syncWithoutDetaching($permissionsData);
 
         return response()->json([
             'success' => true,
-            'statusCode' => 201,
+            'statusCode' => 200,
             'message' => 'Permissions have been added successfully.',
             'data' => ['id' => $id, 'permission_ids' => $permissionsData],
-        ], 201);
+        ], 200);
     }    
 
     #[OA\Post(
@@ -332,16 +323,16 @@ class RoleController extends Controller
     {
         Gate::authorize('deletePermissionRole', [Role::class, $id]);
 
-        $permissionsData = $request->validated();
+        $permissionsData = $request->validated()['permission_ids'];
         $role = Role::findOrFail($id);
         $role->permissions()->detach($permissionsData);
 
         return response()->json([
             'success' => true,
-            'statusCode' => 201,
+            'statusCode' => 200,
             'message' => 'Permissions have been removed successfully.',
             'data' => ['id' => $id, 'permission_ids' => $permissionsData],
-        ], 201);
+        ], 200);
     }
     
     #[OA\Get(

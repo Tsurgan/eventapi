@@ -11,7 +11,7 @@ class RolePolicy
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $authUser): Response
+    public function viewAll(User $authUser): Response
     {
         if ($authUser->permissions()->where('name', 'read other role')->exists()) {
             return Response::allow();

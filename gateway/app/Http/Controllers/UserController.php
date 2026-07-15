@@ -129,8 +129,8 @@ class UserController extends Controller
             //check for create|delete permission_user
             $role = Role::findOrFail($userData['role_id']);
 
-            $userPermissions = $user->permissions();
-            $rolePermissions = $role->permissions();
+            $userPermissions = $user->permissions->pluck('id')->toArray();
+            $rolePermissions = $role->permissions->pluck('id')->toArray();
 
             //if there are permissions in role not present in user, ask for create
             if (!empty(array_diff($rolePermissions, $userPermissions))) {
@@ -138,7 +138,7 @@ class UserController extends Controller
             }
             // if there are permissions in user not present in role, ask for delete
             if (!empty(array_diff($userPermissions, $rolePermissions))) {
-                Gate::authorize('deletePermissionUser', [User::class, $id]);   
+                Gate::authorize('deletePermissionUser', [User::class, $id, $userPermissions]);   
             }
 
             //replace user permissions with role permissions if both checks are passed or bypassed
@@ -239,16 +239,16 @@ class UserController extends Controller
     {
         Gate::authorize('createPermissionUser', [User::class, $id]); 
 
-        $permissionsData = $request->validated();
+        $permissionsData = $request->validated()['permission_ids'];
         $user = User::findOrFail($id);
         $user->permissions()->syncWithoutDetaching($permissionsData);
 
         return response()->json([
             'success' => true,
-            'statusCode' => 201,
+            'statusCode' => 200,
             'message' => 'Permissions have been added successfully.',
             'data' => ['id' => $id, 'permission_ids' => $permissionsData],
-        ], 201);
+        ], 200);
     }    
 
     #[OA\Post(
@@ -287,17 +287,18 @@ class UserController extends Controller
     )]
     public function removePermissions(PermissionAssignRequest $request, int $id) 
     {
-        Gate::authorize('deletePermissionUser', [User::class, $id]); 
-        $permissionsData = $request->validated();
+        $permissionsData = $request->validated()['permission_ids'];   
+        Gate::authorize('deletePermissionUser', [User::class, $id, $permissionsData]); 
+        
         $user = User::findOrFail($id);
         $user->permissions()->detach($permissionsData);
 
         return response()->json([
             'success' => true,
-            'statusCode' => 201,
+            'statusCode' => 200,
             'message' => 'Permissions have been removed successfully.',
             'data' => ['id' => $id, 'permission_ids' => $permissionsData],
-        ], 201);
+        ], 200);
     }
     
     #[OA\Get(
@@ -337,7 +338,6 @@ class UserController extends Controller
     public function getPermissions(int $id) 
     {
         Gate::authorize('readPermissionUser', [User::class, $id]);
-
         $permissions = User::findOrFail($id)->permissions;
         return response()->json([
             'success' => true,

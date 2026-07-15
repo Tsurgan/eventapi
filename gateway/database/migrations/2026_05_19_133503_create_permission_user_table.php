@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');;
             $table->foreignId('permission_id')->constrained()->onDelete('cascade');;
-            $table->timestamps();
+            $table->timestamp('created_at', 0)->nullable();
         });
     }
 

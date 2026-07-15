@@ -13,7 +13,8 @@ use OpenApi\Attributes as OA;
     required: ["id", "name"],
     properties: [
         new OA\Property(property: "id", type: "integer", example: 1),
-        new OA\Property(property: "name", type: "string", example: "visitor")
+        new OA\Property(property: "name", type: "string", example: "visitor"),
+        new OA\Property(property: "is_default", type: "boolean", example: "false")
     ]
 )]
 
@@ -36,6 +37,10 @@ class Role extends Model
     public function permissions()
     {
         return $this->belongsToMany(Permission::class);
+    }
+
+    public static function getDefaultRole() {
+        return Role::where('is_default', 1)->first();
     }
 
 }

@@ -9,6 +9,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RefreshTokenRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -41,12 +42,15 @@ class AuthController extends Controller
     {
         $userData = $request->validated();
         $userData['email_verified_at'] = now();
+        $defaultRole = Role::getDefaultRole();
+        $userData['role_id'] = $defaultRole->id;
+
         $user = User::create($userData);
 
-        $response = Http::asForm()->post(config('oauth2_host').'oauth/token', [
+        $response = Http::asForm()->post(config('oauth2.oauth2_host').'/oauth/token', [
             'grant_type' => 'password',
-            'client_id' => config('passport_password_client_id'),
-            'client_secret' => config('passport_password_secret'),
+            'client_id' => config('oauth2.passport_password_client_id'),
+            'client_secret' => config('oauth2.passport_password_secret'),
             'username' => $userData['email'],
             'password' => $userData['password'],
             'scope' => '*',

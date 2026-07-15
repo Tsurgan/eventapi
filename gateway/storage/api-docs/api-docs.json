@@ -278,18 +278,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "properties": {
-                                    "name": {
-                                        "type": "string",
-                                        "example": "Jane Doe"
-                                    },
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "jane@example.com"
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/UpdateRoleRequest"
                             }
                         }
                     }
@@ -426,16 +415,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "properties": {
-                                    "permission_ids": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "integer"
-                                        },
-                                        "example": "[2]"
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/PermissionAssignRequest"
                             }
                         }
                     }
@@ -482,16 +462,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "properties": {
-                                    "permission_ids": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "integer"
-                                        },
-                                        "example": "[2]"
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/PermissionAssignRequest"
                             }
                         }
                     }
@@ -536,8 +507,8 @@
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthenticated"
+                    "404": {
+                        "description": "Not Found"
                     }
                 },
                 "security": [
@@ -613,18 +584,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "properties": {
-                                    "name": {
-                                        "type": "string",
-                                        "example": "Jane Doe"
-                                    },
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "jane@example.com"
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/UpdateUserRequest"
                             }
                         }
                     }
@@ -761,16 +721,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "properties": {
-                                    "permission_ids": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "integer"
-                                        },
-                                        "example": "[2]"
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/PermissionAssignRequest"
                             }
                         }
                     }
@@ -817,16 +768,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "properties": {
-                                    "permission_ids": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "integer"
-                                        },
-                                        "example": "[2]"
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/PermissionAssignRequest"
                             }
                         }
                     }
@@ -865,6 +807,18 @@
                 },
                 "type": "object"
             },
+            "PermissionAssignRequest": {
+                "properties": {
+                    "permission_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "example": "[2,3]"
+                    }
+                },
+                "type": "object"
+            },
             "RegisterRequest": {
                 "properties": {
                     "name": {
@@ -886,6 +840,19 @@
                 },
                 "type": "object"
             },
+            "UpdateRoleRequest": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Manager"
+                    },
+                    "is_default": {
+                        "type": "boolean",
+                        "example": "true"
+                    }
+                },
+                "type": "object"
+            },
             "UpdateUserRequest": {
                 "properties": {
                     "name": {
@@ -896,6 +863,10 @@
                         "type": "string",
                         "example": "john@example.com"
                     },
+                    "phone": {
+                        "type": "string",
+                        "example": "89999999999"
+                    },
                     "password": {
                         "type": "string",
                         "example": "secret1234"
@@ -903,6 +874,10 @@
                     "password_confirmation": {
                         "type": "string",
                         "example": "secret1234"
+                    },
+                    "role_id": {
+                        "type": "integer",
+                        "example": "2"
                     }
                 },
                 "type": "object"
@@ -941,6 +916,10 @@
                     "name": {
                         "type": "string",
                         "example": "visitor"
+                    },
+                    "is_default": {
+                        "type": "boolean",
+                        "example": "false"
                     }
                 },
                 "type": "object"

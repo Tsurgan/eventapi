@@ -58,14 +58,11 @@ class UserPolicy
             || ($authUser->permissions()->where('name', 'delete other user')->exists())
         ) {
             // second check for last admin
-            $targetUser = User::findOrFail($targetUserId);
-            if (
-                (Permission::where('name', 'create permission_user')->users->count() == 1)
-                && ($targetUser->permissions()->where('name', 'create permission_user')->exists())
-            ) {
+            if (User::isLastPermissionUser($targetUserId)) {             
+                return Response::denyWithStatus(403, 'Cannot delete last admin'); 
+            }
+            else {
                 return Response::allow();
-            } else {
-                return Response::deny('Cannot delete last admin', 403); 
             }
         } else {
             return Response::denyAsNotFound(); 
@@ -81,10 +78,19 @@ class UserPolicy
         } 
     }
     
-    public function deletePermissionUser(User $authUser): Response
-    {
+    public function deletePermissionUser(User $authUser, int $targetUserId, array $permissionIds): Response
+    {    
         if ($authUser->permissions()->where('name', 'delete permission_user')->exists()) {
-            return Response::allow();
+            $createPermissionUserId = Permission::where('name', 'create permission_user')->first()['id'];
+            if (
+                in_array($createPermissionUserId, $permissionIds)
+                && User::isLastPermissionUser($targetUserId, $createPermissionUserId)
+            ) {
+                return Response::denyWithStatus(403, 'Cannot delete last create permission'); 
+            }
+            else {
+                return Response::allow();
+            }
         } else {
             return Response::denyAsNotFound(); 
         } 
@@ -96,7 +102,7 @@ class UserPolicy
             ($authUser->id === $targetUserId) 
             || ($authUser->permissions()->where('name', 'read other permission_user')->exists())
         ) {
-            return Response::allow();
+            return Response::allow(); 
         } else {
             return Response::denyAsNotFound(); 
         } 

@@ -27,7 +27,7 @@ class UpdateUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Gate::allow('update', [User::class, $this->route('id')]);
+        return Gate::allows('update', [User::class, $this->route('id')]);
     }
 
     /**
@@ -40,7 +40,7 @@ class UpdateUserRequest extends FormRequest
         return [
             'name' => ['sometimes', 'max:255'],
             'email' => ['sometimes', 'email', 'unique:users,email,' . $this->route('id')],
-            'phone' => ['sometimes', 'digits_between:10,15'],
+            'phone' => ['sometimes', 'digits_between:10,15','unique:users,phone,' . $this->route('id')],
             'password' => ['sometimes', 'min:6', 'confirmed'],
             'role_id' => ['sometimes','integer'],
         ];

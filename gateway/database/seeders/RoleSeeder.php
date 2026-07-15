@@ -18,7 +18,7 @@ class RoleSeeder extends Seeder
                 ['name' => 'admin'],
                 ['name' => 'org'],
                 ['name' => 'volunteer'],
-                ['name' => 'visitor'],
+                ['name' => 'visitor','is_default' => true],
             ]       
         );
     }
