@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Observers\RoleObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
 use OpenApi\Attributes as OA;
 
@@ -18,8 +20,12 @@ use OpenApi\Attributes as OA;
     ]
 )]
 
+#[ObservedBy([RoleObserver::class])]
 class Role extends Model
 {
+    protected $observables = [
+        'default_role_change',
+    ];
     /**
      * The attributes that are mass assignable.
      *
@@ -27,6 +33,7 @@ class Role extends Model
      */
     protected $fillable = [
         'name',
+        'is_default',
     ];
 
     public function users()
@@ -43,4 +50,8 @@ class Role extends Model
         return Role::where('is_default', 1)->first();
     }
 
+    public function prepareForChangingDefaultRole()
+    {
+        $this->fireModelEvent('default_role_change');
+    }
 }

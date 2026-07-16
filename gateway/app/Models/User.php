@@ -128,15 +128,5 @@ class User extends Authenticatable implements OAuthenticatable
         }
         
         return false;
-        /*$targetUser = User::findOrFail($targetUserId);
-        $createPermissionUser = Permission::where('name', 'create permission_user')->first();
-        if (
-            ($createPermissionUser->users()->count() == 1)
-            && ($targetUser->permissions()->where('name', 'create permission_user')->exists())
-        ) {
-            return true; 
-        } else {
-            return false;
-        }*/
     }
 }

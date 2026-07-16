@@ -171,7 +171,13 @@ class RoleController extends Controller
     public function update(UpdateRoleRequest $request, int $id)
     {
         $role = Role::findOrFail($id);
-        $role->update($request->validated());
+
+        $data = $request->validated();
+
+        if (isset($data['is_default'])) {
+            $role->prepareForChangingDefaultRole();
+        }
+        $role->update($data);
 
         return response()->json([
             'success' => true,
