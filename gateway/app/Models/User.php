@@ -20,6 +20,7 @@ use OpenApi\Attributes as OA;
     required: ["id", "name", "password"],
     properties: [
         new OA\Property(property: "id", type: "integer", example: 1),
+        new OA\Property(property: "role_id", type: "integer", example: 4),
         new OA\Property(property: "name", type: "string", example: "John Doe"),
         new OA\Property(property: "email", type: "string", format: "email", example: "john@example.com"),
         new OA\Property(property: "phone", type: "string", pattern:"^\+[1-9]\d{1,14}$", example: "89999999999"),

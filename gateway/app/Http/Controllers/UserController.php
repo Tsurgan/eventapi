@@ -237,7 +237,7 @@ class UserController extends Controller
     )]
     public function addPermissions(PermissionAssignRequest $request, int $id) 
     {
-        Gate::authorize('createPermissionUser', [User::class, $id]); 
+        Gate::authorize('createPermissionUser', User::class); 
 
         $permissionsData = $request->validated()['permission_ids'];
         $user = User::findOrFail($id);

@@ -226,7 +226,7 @@ class RoleController extends Controller
     )]   
     public function destroy(int $id)
     {
-        Gate::authorize('delete', [Role::class, $id]);
+        Gate::authorize('delete', Role::class);
 
         $role = Role::findOrFail($id);
         if ($role->users()->exists()) {
@@ -277,7 +277,7 @@ class RoleController extends Controller
     )]
     public function addPermissions(PermissionAssignRequest $request, int $id) 
     {
-        Gate::authorize('createPermissionRole', [Role::class, $id]);
+        Gate::authorize('createPermissionRole', Role::class);
 
         $permissionsData = $request->validated()['permission_ids'];
         $role = Role::findOrFail($id);
@@ -327,7 +327,7 @@ class RoleController extends Controller
     )]
     public function removePermissions(PermissionAssignRequest $request, int $id) 
     {
-        Gate::authorize('deletePermissionRole', [Role::class, $id]);
+        Gate::authorize('deletePermissionRole', Role::class);
 
         $permissionsData = $request->validated()['permission_ids'];
         $role = Role::findOrFail($id);
