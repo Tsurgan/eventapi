@@ -1,7 +1,9 @@
 <?php
 
-use Illuminate\Foundation\Application;
-use Illuminate\Http\Request;
+use App\Dispatcher\DispatcherInterface;
+use App\Dispatcher\HttpDispatcher;
+use App\Dispatcher\GRPCDispatcher;
+use Spiral\RoadRunner\Environment;
 
 define('LARAVEL_START', microtime(true));
 
@@ -13,8 +15,22 @@ if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php'))
 // Register the Composer autoloader...
 require __DIR__.'/../vendor/autoload.php';
 
-// Bootstrap Laravel and handle the request...
-/** @var Application $app */
-$app = require_once __DIR__.'/../bootstrap/app.php';
+/**
+ * Collect all dispatchers.
+ *
+ * @var DispatcherInterface[] $dispatchers
+ */
+$dispatchers = [
+    new HttpDispatcher(),
+    new GRPCDispatcher(),
+];
 
-$app->handleRequest(Request::capture());
+// Create environment
+$env = Environment::fromGlobals();
+
+// Execute dispatcher that can serve the request
+    foreach ($dispatchers as $dispatcher) {
+        if ($dispatcher->canServe($env)) {
+            $dispatcher->serve();
+        }
+    }
