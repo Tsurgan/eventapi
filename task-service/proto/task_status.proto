@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option go_package = "proto/task_status";
+option php_namespace = "GRPC\\TaskStatus";
+option php_metadata_namespace = "GRPC\\GPBMetadata";
+
+package task_status;
+
+service TaskStatusService {
+    rpc ListTaskStatuses (ListTaskStatusesRequest) returns (ListTaskStatusesResponse);
+}
+
+message TaskStatus {
+  string id = 1;        
+  string name = 2;
+}
+
+message ListTaskStatusesRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListTaskStatusesResponse {
+  repeated TaskStatus task_statuses = 1;
+  string next_page_token = 2;
+}
