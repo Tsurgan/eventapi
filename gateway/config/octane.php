@@ -41,6 +41,8 @@ return [
     'server' => env('OCTANE_SERVER', 'roadrunner'),
     'grpc_server_host' => env('GRPC_SERVER_HOST', '127.0.0.1'),
     'grpc_server_port' => env('GRPC_SERVER_PORT', 9001),
+    'task_grpc_server_host' => env('TASK_GRPC_SERVER_HOST', '127.0.0.1'),
+    'task_grpc_server_port' => env('TASK_GRPC_SERVER_PORT', 9002),
 
     /*
     |--------------------------------------------------------------------------

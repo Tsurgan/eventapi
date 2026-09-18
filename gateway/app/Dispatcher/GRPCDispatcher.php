@@ -4,9 +4,7 @@ namespace App\Dispatcher;
 
 use App\RoadRunnerMode;
 use Spiral\RoadRunner\EnvironmentInterface;
-use GRPC\User\UserServiceInterface;
-use GRPC\User\CreateUserRequest;
-use GRPC\User\CreateUserResponse;
+use GRPC\TaskStatus\TaskStatusServiceInterface;
 use App\Services\GRPCMessenger;
 use Spiral\RoadRunner\GRPC\Invoker;
 use Spiral\RoadRunner\GRPC\Server;
@@ -25,7 +23,7 @@ final class GRPCDispatcher implements DispatcherInterface
             'debug' => false, // optional (default: false)
         ]);
 
-        $server->registerService(UserServiceInterface::class, new GRPCMessenger());
+        $server->registerService(TaskStatusServiceInterface::class, new GRPCMessenger());
 
         $server->serve(Worker::create());
     }

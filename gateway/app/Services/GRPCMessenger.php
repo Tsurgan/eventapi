@@ -4,13 +4,13 @@ namespace App\Services;
 
 use App\Models\User;
 use Spiral\RoadRunner\GRPC;
-use GRPC\User\UserServiceInterface;
-use GRPC\User\CreateUserRequest;
-use GRPC\User\CreateUserResponse;
+use GRPC\TaskStatus\TaskStatusServiceInterface;
+use GRPC\TaskStatus\ListTaskStatusesRequest;
+use GRPC\TaskStatus\ListTaskStatusesResponse;
 
-final class GRPCMessenger implements UserServiceInterface
+final class GRPCMessenger implements TaskStatusServiceInterface
 {
-    public function CreateUser(GRPC\ContextInterface $ctx, CreateUserRequest $in): CreateUserResponse
+    public function ListTaskStatuses(GRPC\ContextInterface $ctx, ListTaskStatusesRequest $in): ListTaskStatusesResponse
     {
         //print_r(User::query()->first()->name);
 
@@ -19,8 +19,8 @@ final class GRPCMessenger implements UserServiceInterface
             $greeting->name = $in->getName();
             $greeting->save();
             print_r($greeting->name);*/
-            $response = new CreateUserResponse();
-            $response->setMessage("Hello!");
+            $response = new  ListTaskStatusesResponse();
+            //$response->setMessage("Hello!");
             return $response;
         } catch (\Exception $e) {
             error_log("Error: " . $e->getMessage());

@@ -10,7 +10,7 @@
     },
     "servers": [
         {
-            "url": "http://127.0.0.1:8000",
+            "url": "http://127.0.0.1:9001",
             "description": "API server"
         }
     ],
@@ -485,6 +485,211 @@
                 ]
             }
         },
+        "/api/task-statuses": {
+            "get": {
+                "tags": [
+                    "Task Status"
+                ],
+                "summary": "Get list of task statuses",
+                "description": "Returns a paginated list of all task statuses",
+                "operationId": "c0d44bacce85f229f54a43126fdc06df",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TaskStatus"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Task Status"
+                ],
+                "summary": "Create task status",
+                "description": "Creates a task status",
+                "operationId": "de18beb40811e10f133c5ed6833145ba",
+                "requestBody": {
+                    "description": "Task Status",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "New task status"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Task status created successfully"
+                    },
+                    "422": {
+                        "description": "Invalid request"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/task-statuses/{id}": {
+            "get": {
+                "tags": [
+                    "Task Status"
+                ],
+                "summary": "Get task status by ID",
+                "description": "Returns a single task status",
+                "operationId": "cfd5ded56bd9e9d832061e5fc5ddb285",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Task status ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TaskStatus"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Task status not found"
+                    },
+                    "422": {
+                        "description": "Incorrect data"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Task Status"
+                ],
+                "summary": "Update an existing task status",
+                "description": "Updates task status data",
+                "operationId": "ad3abbfd96c62c096dce796bad650355",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Task Status ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateTaskStatusRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Task Status updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TaskStatus"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Task Status not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Task Status"
+                ],
+                "summary": "Delete a task status",
+                "description": "Deletes a task status by ID",
+                "operationId": "8d9955bad85338cca3ab2ee88066cdcc",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Task Status ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Task Status deleted successfully"
+                    },
+                    "404": {
+                        "description": "Task Status not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
         "/api/users": {
             "get": {
                 "tags": [
@@ -853,6 +1058,15 @@
                 },
                 "type": "object"
             },
+            "UpdateTaskStatusRequest": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Delayed"
+                    }
+                },
+                "type": "object"
+            },
             "UpdateUserRequest": {
                 "properties": {
                     "name": {
@@ -937,6 +1151,10 @@
                         "type": "integer",
                         "example": 1
                     },
+                    "role_id": {
+                        "type": "integer",
+                        "example": 4
+                    },
                     "name": {
                         "type": "string",
                         "example": "John Doe"
@@ -968,6 +1186,25 @@
                     }
                 },
                 "type": "object"
+            },
+            "TaskStatus": {
+                "title": "Task status",
+                "description": "Task status model",
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "done"
+                    }
+                },
+                "type": "object"
             }
         },
         "securitySchemes": {
@@ -978,9 +1215,9 @@
                 "scheme": "http",
                 "flows": {
                     "password": {
-                        "authorizationUrl": "http://127.0.0.1:8000/oauth/authorize",
-                        "tokenUrl": "http://127.0.0.1:8000/oauth/token",
-                        "refreshUrl": "http://127.0.0.1:8000/token/refresh",
+                        "authorizationUrl": "http://127.0.0.1:9001/oauth/authorize",
+                        "tokenUrl": "http://127.0.0.1:9001/oauth/token",
+                        "refreshUrl": "http://127.0.0.1:9001/token/refresh",
                         "scopes": []
                     }
                 }
@@ -999,6 +1236,10 @@
         {
             "name": "Roles",
             "description": "Roles"
+        },
+        {
+            "name": "Task Status",
+            "description": "Task Status"
         },
         {
             "name": "Users",

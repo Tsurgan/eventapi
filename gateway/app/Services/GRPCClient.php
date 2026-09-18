@@ -3,9 +3,9 @@
 namespace App\Services;
 
 use Grpc\ChannelCredentials;
-use GRPC\User\UserServiceInterface;
-use GRPC\User\CreateUserRequest;
-use GRPC\User\UserServiceClient;
+use GRPC\TaskStatus\TaskStatusServiceInterface;
+use GRPC\TaskStatus\ListTaskStatusesRequest;
+use GRPC\TaskStatus\TaskStatusServiceClient;
 
 class GRPCClient
 {
@@ -15,7 +15,7 @@ class GRPCClient
 
     private function __construct()
     {
-        $this->client = new UserServiceClient(config('octane.grpc_server_host').':'.config('octane.grpc_server_port'), [
+        $this->client = new TaskStatusServiceClient(config('octane.task_grpc_server_host').':'.config('octane.task_grpc_server_port'), [
             'credentials' => ChannelCredentials::createInsecure(),
         ]);
     }
