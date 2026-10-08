@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('task_id')->constrained()->cascadeOnDelete(); 
             $table->integer('user_id'); 
             $table->jsonb('changes')->default('{}');
-            $table->timestamps();
+            $table->timestamp('created_at');
         });
     }
 

@@ -31,8 +31,7 @@ $server = new Server(new Invoker(), [
 
 $server->registerService(TaskStatusServiceInterface::class, new GRPCMessenger());
 
-//$server->serve(Worker::create());
-        $app = require Application::inferBasePath().'/bootstrap/app.php';
+$app = require Application::inferBasePath().'/bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 
 try {

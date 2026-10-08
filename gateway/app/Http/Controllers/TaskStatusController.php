@@ -16,6 +16,8 @@ use GRPC\TaskStatus\ListTaskStatusesRequest;
 use App\Services\GRPCClient;
 use Illuminate\Support\Facades\Log;
 
+use App\Helpers\GRPCMessageHelper;
+
 class TaskStatusController extends Controller
 {
     /**
@@ -26,6 +28,22 @@ class TaskStatusController extends Controller
         summary: "Get list of task statuses",
         description: "Returns a paginated list of all task statuses",
         tags: ["Task Status"],
+        parameters: [
+            new OA\Parameter(
+                name: "page",
+                description: "Page number",
+                in: "query",
+                required: false,
+                schema: new OA\Schema(type: "integer", default: 1)
+            ),
+            new OA\Parameter(
+                name: "per_page",
+                description: "Items per page",
+                in: "query",
+                required: false,
+                schema: new OA\Schema(type: "integer", default: 1, maximum: 100)
+            )
+        ],
         security: [["passport" => []]],
         responses: [
             new OA\Response(
@@ -49,32 +67,19 @@ class TaskStatusController extends Controller
         //    return response()->json(['error' => 'Name cannot be empty'], 400);
         //}
 
-        $client = GRPCClient::getInstance();
         $request = new ListTaskStatusesRequest();
-        $request->setPageSize(1);
-        $request->setPageToken(1);
+        
+        $pageSize = request()->query('per_page', 15);
+        $pageToken = request()->query('page', 1);
 
-        $attempt = 0;
-        $maxRetries = 10; // Максимальное количество попыток
+        $request->setPageSize($pageSize);
+        $request->setPageToken($pageToken);
 
-        while ($attempt < $maxRetries) {
-            try {
-                $responseMessage = $this->send($client, $request);
-                // Если ответ получен корректно, выходим из цикла
-                if ($responseMessage !== null) {
-                                           //file_put_contents('log.txt', print_r($responseMessage[0], true), FILE_APPEND | LOCK_EX);
-                    return response()->json(['message1' => $responseMessage[0]->getId()]);
-                }
-            } catch (\Exception $e) {
-                Log::error('Exception: ' . $e->getMessage());
-            }
+        $sender = new GRPCMessageHelper;
+        $reply = $sender->sendMessage($request,'ListTaskStatuses');
 
-            $attempt++;
-            // Можно добавить задержку перед повторной попыткой
-            usleep(500000); // Задержка 500 мс
-        }
+        return $reply;
 
-        return response()->json(['error' => 'Failed to get a valid response after retries'], 500);
         /*$id = Redis::connection()->xadd('orders-stream',  [
             'user_id' => Auth::user()->id,
             'resource' => 'taskStatus',
@@ -96,19 +101,6 @@ class TaskStatusController extends Controller
             ], 503);
         }*/
     }
-
-    private function send($client, $request)
-    {
-        list($reply, $status) = $client->ListTaskStatuses($request)->wait();
-        if ($status->code !== \Grpc\STATUS_OK) {
-             file_put_contents('log.txt', print_r($status->code,true), FILE_APPEND | LOCK_EX);
-            Log::error('gRPC Error: ' . $status->details);
-            return null; // Возвращаем null, чтобы продолжить попытки
-        }
-
-        return $reply->getTaskStatuses() ?? null;
-    }
-
 
     /**
      * Store a newly created resource in storage.

@@ -4,10 +4,17 @@ option go_package = "proto/task_status";
 option php_namespace = "GRPC\\TaskStatus";
 option php_metadata_namespace = "GRPC\\GPBMetadata";
 
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+
 package task_status;
 
 service TaskStatusService {
     rpc ListTaskStatuses (ListTaskStatusesRequest) returns (ListTaskStatusesResponse);
+    rpc GetTaskStatus (GetTaskStatusRequest) returns (TaskStatus);
+    rpc CreateTaskStatus (CreateTaskStatusRequest) returns (TaskStatus);
+    rpc UpdateTaskStatus (UpdateTaskStatusRequest) returns (TaskStatus);
+    rpc DeleteTaskStatus (DeleteTaskStatusRequest) returns (google.protobuf.Empty);
 }
 
 message TaskStatus {
@@ -23,4 +30,21 @@ message ListTaskStatusesRequest {
 message ListTaskStatusesResponse {
   repeated TaskStatus task_statuses = 1;
   string next_page_token = 2;
+}
+
+message GetTaskStatusRequest {
+  string id = 1;
+}
+
+message CreateTaskStatusRequest {
+  TaskStatus task_status = 1;
+}
+
+message UpdateTaskStatusRequest {
+  TaskStatus task_status = 1;
+  google.protobuf.FieldMask update_mask = 2; 
+}
+
+message DeleteTaskStatusRequest {
+  string id = 1;
 }

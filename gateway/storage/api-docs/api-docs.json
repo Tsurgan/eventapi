@@ -493,6 +493,29 @@
                 "summary": "Get list of task statuses",
                 "description": "Returns a paginated list of all task statuses",
                 "operationId": "c0d44bacce85f229f54a43126fdc06df",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
+                            "maximum": 100
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successful operation",

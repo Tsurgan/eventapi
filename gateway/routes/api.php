@@ -6,15 +6,16 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\TaskStatusController;
 
 Route::post('/register', [AuthController::class, 'register'])->name("register");
 Route::post('/login', [AuthController::class, 'login'])->name("login");
 Route::post('/refresh', [AuthController::class, 'refreshToken'])->name("refresh");
-
+    Route::get('/task-statuses', [TaskStatusController::class, 'index'])->name("taskStatuses.index");    
 
 Route::group(['middleware' => ['auth:api']], function () {
     
-    Route::get('/users', [UserController::class, 'index'])->name("users.index");
+Route::get('/users', [UserController::class, 'index'])->name("users.index");
     Route::get('/users/{id}', [UserController::class, 'show'])->name("users.show")
         ->whereNumber('id');
     Route::put('/users/{id}', [UserController::class, 'update'])->name("users.update")

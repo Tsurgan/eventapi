@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+option go_package = "proto/task";
+option php_namespace = "GRPC\\Task";
+option php_metadata_namespace = "GRPC\\GPBMetadata";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+
+package task;
+
+service TaskService {
+    rpc ListTasks (ListTasksRequest) returns (ListTasksResponse);
+    rpc GetTask (GetTaskRequest) returns (Task);
+    rpc CreateTask (CreateTaskRequest) returns (Task);
+    rpc UpdateTask (UpdateTaskRequest) returns (Task);
+    rpc DeleteTask (DeleteTaskRequest) returns (google.protobuf.Empty);
+}
+
+message Task {
+  string id = 1;        
+  string name = 2;
+  string description = 3;
+  string location_id = 4;
+  string status_id = 5;
+  google.protobuf.Timestamp start_time = 6;
+  google.protobuf.Timestamp end_time = 7;
+}
+
+message ListTasksRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListTasksResponse {
+  repeated Task tasks = 1;
+  string next_page_token = 2;
+}
+
+message GetTaskRequest {
+  string id = 1;
+}
+
+message CreateTaskRequest {
+  Task task = 1;
+}
+
+message UpdateTaskRequest {
+  Task task = 1;
+  google.protobuf.FieldMask update_mask = 2; 
+}
+
+message DeleteTaskRequest {
+  string id = 1;
+}

@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+option go_package = "proto/task_history";
+option php_namespace = "GRPC\\TaskHistory";
+option php_metadata_namespace = "GRPC\\GPBMetadata";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+package task_history;
+
+service TaskHistoryService {
+    rpc ListTaskHistories (ListTaskHistoriesRequest) returns (ListTaskHistoriesResponse);
+    rpc GetTaskHistory (GetTaskHistoryRequest) returns (TaskHistory);
+    rpc DeleteTaskHistory (DeleteTaskHistoryRequest) returns (google.protobuf.Empty);
+}
+
+message TaskHistory {
+  string id = 1;        
+  string user_id = 2; 
+  repeated TaskChange task_changes = 3;
+  google.protobuf.Timestamp created_at = 4;
+}
+
+message TaskChange {
+  string field_name = 1;
+  string original_data = 2;
+  string changed_data = 3;
+}
+
+message ListTaskHistoriesRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+  string task_id = 3; 
+}
+
+message ListTaskHistoriesResponse {
+  repeated TaskHistory task_histories = 1;
+  string next_page_token = 2;
+}
+
+message GetTaskHistoryRequest {
+  string id = 1;
+}
+
+message DeleteTaskHistoryRequest {
+  string id = 1;
+}

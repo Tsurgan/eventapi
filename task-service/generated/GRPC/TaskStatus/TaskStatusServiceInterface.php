@@ -19,4 +19,40 @@ interface TaskStatusServiceInterface extends GRPC\ServiceInterface
     * @throws GRPC\Exception\InvokeException
     */
     public function ListTaskStatuses(GRPC\ContextInterface $ctx, ListTaskStatusesRequest $in): ListTaskStatusesResponse;
+
+    /**
+    * @param GRPC\ContextInterface $ctx
+    * @param GetTaskStatusRequest $in
+    * @return TaskStatus
+    *
+    * @throws GRPC\Exception\InvokeException
+    */
+    public function GetTaskStatus(GRPC\ContextInterface $ctx, GetTaskStatusRequest $in): TaskStatus;
+
+    /**
+    * @param GRPC\ContextInterface $ctx
+    * @param CreateTaskStatusRequest $in
+    * @return TaskStatus
+    *
+    * @throws GRPC\Exception\InvokeException
+    */
+    public function CreateTaskStatus(GRPC\ContextInterface $ctx, CreateTaskStatusRequest $in): TaskStatus;
+
+    /**
+    * @param GRPC\ContextInterface $ctx
+    * @param UpdateTaskStatusRequest $in
+    * @return TaskStatus
+    *
+    * @throws GRPC\Exception\InvokeException
+    */
+    public function UpdateTaskStatus(GRPC\ContextInterface $ctx, UpdateTaskStatusRequest $in): TaskStatus;
+
+    /**
+    * @param GRPC\ContextInterface $ctx
+    * @param DeleteTaskStatusRequest $in
+    * @return \Google\Protobuf\GPBEmpty
+    *
+    * @throws GRPC\Exception\InvokeException
+    */
+    public function DeleteTaskStatus(GRPC\ContextInterface $ctx, DeleteTaskStatusRequest $in): \Google\Protobuf\GPBEmpty;
 }

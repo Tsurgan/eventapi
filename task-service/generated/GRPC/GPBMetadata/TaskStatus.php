@@ -14,10 +14,12 @@ class TaskStatus
         if (static::$is_initialized == true) {
           return;
         }
+        \GPBMetadata\Google\Protobuf\FieldMask::initOnce();
+        \GPBMetadata\Google\Protobuf\GPBEmpty::initOnce();
         $pool->internalAddGeneratedFile(
             '
-≠
-proto/task_status.prototask_status"&
+û
+proto/task_status.prototask_statusgoogle/protobuf/empty.proto"&
 
 TaskStatus
 
@@ -29,9 +31,24 @@ TaskStatus
 page_token (	"c
 ListTaskStatusesResponse.
 task_statuses (2.task_status.TaskStatus
-next_page_token (	2t
+next_page_token (	""
+GetTaskStatusRequest
+
+id (	"G
+CreateTaskStatusRequest,
+task_status (2.task_status.TaskStatus"x
+UpdateTaskStatusRequest,
+task_status (2.task_status.TaskStatus/
+update_mask (2.google.protobuf.FieldMask"%
+DeleteTaskStatusRequest
+
+id (	2π
 TaskStatusService_
-ListTaskStatuses$.task_status.ListTaskStatusesRequest%.task_status.ListTaskStatusesResponseB8Zproto/task_status GRPC\\TaskStatus‚GRPC\\GPBMetadatabproto3'
+ListTaskStatuses$.task_status.ListTaskStatusesRequest%.task_status.ListTaskStatusesResponseK
+GetTaskStatus!.task_status.GetTaskStatusRequest.task_status.TaskStatusQ
+CreateTaskStatus$.task_status.CreateTaskStatusRequest.task_status.TaskStatusQ
+UpdateTaskStatus$.task_status.UpdateTaskStatusRequest.task_status.TaskStatusP
+DeleteTaskStatus$.task_status.DeleteTaskStatusRequest.google.protobuf.EmptyB8Zproto/task_status GRPC\\TaskStatus‚GRPC\\GPBMetadatabproto3'
         , true);
 
         static::$is_initialized = true;
