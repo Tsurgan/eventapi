@@ -17,6 +17,10 @@ class CreateTaskRequest extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>.task.Task task = 1;</code>
      */
     protected $task = null;
+    /**
+     * Generated from protobuf field <code>string user_id = 2;</code>
+     */
+    protected $user_id = '';
 
     /**
      * Constructor.
@@ -25,6 +29,7 @@ class CreateTaskRequest extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type \GRPC\Task\Task $task
+     *     @type string $user_id
      * }
      */
     public function __construct($data = NULL) {
@@ -60,6 +65,28 @@ class CreateTaskRequest extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkMessage($var, \GRPC\Task\Task::class);
         $this->task = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>string user_id = 2;</code>
+     * @return string
+     */
+    public function getUserId()
+    {
+        return $this->user_id;
+    }
+
+    /**
+     * Generated from protobuf field <code>string user_id = 2;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setUserId($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->user_id = $var;
 
         return $this;
     }

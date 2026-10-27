@@ -32,6 +32,7 @@ message ListTaskHistoriesRequest {
   int32 page_size = 1;
   string page_token = 2;
   string task_id = 3; 
+  string user_id = 4;
 }
 
 message ListTaskHistoriesResponse {
@@ -41,8 +42,10 @@ message ListTaskHistoriesResponse {
 
 message GetTaskHistoryRequest {
   string id = 1;
+  string user_id = 2;
 }
 
 message DeleteTaskHistoryRequest {
   string id = 1;
+  string user_id = 2;
 }

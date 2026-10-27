@@ -1,0 +1,31 @@
+services:
+  gateway:
+    build:
+      context: ./gateway
+    container_name: gateway
+    ports:
+      - "8000:8080" # Exposed to local machine at http://localhost:8000
+    volumes:
+      - ./gateway:/var/www
+    environment:
+      - APP_ENV=local
+      - TASK_SERVICE_GRPC_HOST=task-service:9001
+    networks:
+      - microservice-network
+    depends_on:
+      - task-service
+
+  task-service:
+    build:
+      context: ./task-service
+    container_name: task_service
+    volumes:
+      - ./task-service:/var/www
+    environment:
+      - APP_ENV=local
+    networks:
+      - microservice-network
+
+networks:
+  microservice-network:
+    driver: bridge

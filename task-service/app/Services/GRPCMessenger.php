@@ -13,6 +13,7 @@ use GRPC\TaskStatus\CreateTaskStatusRequest;
 use GRPC\TaskStatus\UpdateTaskStatusRequest;
 use GRPC\TaskStatus\DeleteTaskStatusRequest;
 use Google\Protobuf\Internal\DescriptorPool;
+use Illuminate\Support\Facades\Gate;
 use Google\Protobuf\Descriptor;
 use Google\Protobuf\FieldDescriptor;
 use Illuminate\Support\Facades\DB;
@@ -29,6 +30,8 @@ final class GRPCMessenger implements TaskStatusServiceInterface
     public function ListTaskStatuses(GRPC\ContextInterface $ctx, ListTaskStatusesRequest $in): ListTaskStatusesResponse
     {
         try {
+            //Gate::authorize('viewAll', TaskStatus::class);
+
             $page_token = $in->getPageToken() ?? 1;
             $page_size = $in->getPageSize() ?? 15;
             $taskStatuses = [

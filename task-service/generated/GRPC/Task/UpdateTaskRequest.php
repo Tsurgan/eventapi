@@ -21,6 +21,10 @@ class UpdateTaskRequest extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>.google.protobuf.FieldMask update_mask = 2;</code>
      */
     protected $update_mask = null;
+    /**
+     * Generated from protobuf field <code>string user_id = 3;</code>
+     */
+    protected $user_id = '';
 
     /**
      * Constructor.
@@ -30,6 +34,7 @@ class UpdateTaskRequest extends \Google\Protobuf\Internal\Message
      *
      *     @type \GRPC\Task\Task $task
      *     @type \Google\Protobuf\FieldMask $update_mask
+     *     @type string $user_id
      * }
      */
     public function __construct($data = NULL) {
@@ -97,6 +102,28 @@ class UpdateTaskRequest extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkMessage($var, \Google\Protobuf\FieldMask::class);
         $this->update_mask = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>string user_id = 3;</code>
+     * @return string
+     */
+    public function getUserId()
+    {
+        return $this->user_id;
+    }
+
+    /**
+     * Generated from protobuf field <code>string user_id = 3;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setUserId($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->user_id = $var;
 
         return $this;
     }

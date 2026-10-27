@@ -25,6 +25,7 @@ message TaskStatus {
 message ListTaskStatusesRequest {
   int32 page_size = 1;
   string page_token = 2;
+  string user_id = 3;
 }
 
 message ListTaskStatusesResponse {
@@ -34,17 +35,21 @@ message ListTaskStatusesResponse {
 
 message GetTaskStatusRequest {
   string id = 1;
+  string user_id = 2;
 }
 
 message CreateTaskStatusRequest {
   TaskStatus task_status = 1;
+  string user_id = 2;
 }
 
 message UpdateTaskStatusRequest {
   TaskStatus task_status = 1;
   google.protobuf.FieldMask update_mask = 2; 
+  string user_id = 3;
 }
 
 message DeleteTaskStatusRequest {
   string id = 1;
+  string user_id = 2;
 }

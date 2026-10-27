@@ -21,6 +21,10 @@ class ListTasksRequest extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>string page_token = 2;</code>
      */
     protected $page_token = '';
+    /**
+     * Generated from protobuf field <code>string user_id = 3;</code>
+     */
+    protected $user_id = '';
 
     /**
      * Constructor.
@@ -30,6 +34,7 @@ class ListTasksRequest extends \Google\Protobuf\Internal\Message
      *
      *     @type int $page_size
      *     @type string $page_token
+     *     @type string $user_id
      * }
      */
     public function __construct($data = NULL) {
@@ -77,6 +82,28 @@ class ListTasksRequest extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, True);
         $this->page_token = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>string user_id = 3;</code>
+     * @return string
+     */
+    public function getUserId()
+    {
+        return $this->user_id;
+    }
+
+    /**
+     * Generated from protobuf field <code>string user_id = 3;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setUserId($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->user_id = $var;
 
         return $this;
     }

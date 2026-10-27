@@ -18,31 +18,36 @@ class TaskStatus
         \GPBMetadata\Google\Protobuf\GPBEmpty::initOnce();
         $pool->internalAddGeneratedFile(
             '
-
+ô
 proto/task_status.prototask_statusgoogle/protobuf/empty.proto"&
 
 TaskStatus
 
 id (	
-name (	"@
+name (	"Q
 ListTaskStatusesRequest
 	page_size (
 
-page_token (	"c
+page_token (	
+user_id (	"c
 ListTaskStatusesResponse.
 task_statuses (2.task_status.TaskStatus
-next_page_token (	""
+next_page_token (	"3
 GetTaskStatusRequest
 
-id (	"G
+id (	
+user_id (	"X
 CreateTaskStatusRequest,
-task_status (2.task_status.TaskStatus"x
+task_status (2.task_status.TaskStatus
+user_id (	"‰
 UpdateTaskStatusRequest,
 task_status (2.task_status.TaskStatus/
-update_mask (2.google.protobuf.FieldMask"%
+update_mask (2.google.protobuf.FieldMask
+user_id (	"6
 DeleteTaskStatusRequest
 
-id (	2¹
+id (	
+user_id (	2¹
 TaskStatusService_
 ListTaskStatuses$.task_status.ListTaskStatusesRequest%.task_status.ListTaskStatusesResponseK
 GetTaskStatus!.task_status.GetTaskStatusRequest.task_status.TaskStatusQ

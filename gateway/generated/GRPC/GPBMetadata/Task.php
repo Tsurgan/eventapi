@@ -19,7 +19,7 @@ class Task
         \GPBMetadata\Google\Protobuf\GPBEmpty::initOnce();
         $pool->internalAddGeneratedFile(
             '
-º
+ë
 proto/task.prototask google/protobuf/field_mask.protogoogle/protobuf/empty.proto"ª
 Task
 
@@ -30,28 +30,33 @@ class Task
 	status_id (	.
 
 start_time (2.google.protobuf.Timestamp,
-end_time (2.google.protobuf.Timestamp"9
+end_time (2.google.protobuf.Timestamp"J
 ListTasksRequest
 	page_size (
 
-page_token (	"G
+page_token (	
+user_id (	"G
 ListTasksResponse
 tasks (2
 .task.Task
-next_page_token (	"
+next_page_token (	"-
 GetTaskRequest
 
-id (	"-
+id (	
+user_id (	">
 CreateTaskRequest
 task (2
-.task.Task"^
+.task.Task
+user_id (	"o
 UpdateTaskRequest
 task (2
 .task.Task/
-update_mask (2.google.protobuf.FieldMask"
+update_mask (2.google.protobuf.FieldMask
+user_id (	"0
 DeleteTaskRequest
 
-id (	2ù
+id (	
+user_id (	2ù
 TaskService<
 	ListTasks.task.ListTasksRequest.task.ListTasksResponse+
 GetTask.task.GetTaskRequest

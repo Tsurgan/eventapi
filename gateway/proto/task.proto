@@ -31,6 +31,7 @@ message Task {
 message ListTasksRequest {
   int32 page_size = 1;
   string page_token = 2;
+  string user_id = 3;
 }
 
 message ListTasksResponse {
@@ -40,17 +41,21 @@ message ListTasksResponse {
 
 message GetTaskRequest {
   string id = 1;
+  string user_id = 2;  
 }
 
 message CreateTaskRequest {
   Task task = 1;
+  string user_id = 2;
 }
 
 message UpdateTaskRequest {
   Task task = 1;
   google.protobuf.FieldMask update_mask = 2; 
+  string user_id = 3;
 }
 
 message DeleteTaskRequest {
   string id = 1;
+  string user_id = 2;
 }

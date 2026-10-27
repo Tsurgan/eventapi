@@ -9,7 +9,7 @@ class TaskStatusService
 {
     public function index()
     {
-        Gate::authorize('viewAll', TaskStatus::class);
+        //Gate::authorize('viewAll', TaskStatus::class);
         return TaskStatus::all();
     }
 

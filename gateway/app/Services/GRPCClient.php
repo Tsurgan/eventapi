@@ -15,7 +15,7 @@ class GRPCClient
 
     private function __construct()
     {
-        $this->client = new TaskStatusServiceClient(config('octane.task_grpc_server_host').':'.config('octane.task_grpc_server_port'), [
+        $this->client = new TaskStatusServiceClient(config('octane.grpc_server_host').':'.config('octane.grpc_server_port'), [
             'credentials' => ChannelCredentials::createInsecure(),
         ]);
     }

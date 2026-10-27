@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Redis;
 
 use Grpc\ChannelCredentials;
-use GRPC\User\UserServiceClient;
-use GRPC\User\CreateUserRequest;
+use GRPC\TaskStatus\TaskStatus;
+use GRPC\TaskStatus\CreateTaskStatusRequest;
 use GRPC\TaskStatus\ListTaskStatusesRequest;
 use App\Services\GRPCClient;
 use Illuminate\Support\Facades\Log;
@@ -71,14 +71,20 @@ class TaskStatusController extends Controller
         
         $pageSize = request()->query('per_page', 15);
         $pageToken = request()->query('page', 1);
+        $userId = 2;
 
         $request->setPageSize($pageSize);
         $request->setPageToken($pageToken);
+        $request->setUserId($userId);
 
         $sender = new GRPCMessageHelper;
         $reply = $sender->sendMessage($request,'ListTaskStatuses');
 
-        return $reply;
+        return response()->json([
+            'success' => true,
+            'statusCode' => 200,
+            'data' => $reply,
+        ], 200);
 
         /*$id = Redis::connection()->xadd('orders-stream',  [
             'user_id' => Auth::user()->id,
@@ -132,6 +138,9 @@ class TaskStatusController extends Controller
     )]
     public function store(Request $request)
     {
+        $validated = $request->validate([
+            'name' => ['required'],
+        ]);
         /*$validated = $request->validate([
             'name' => ['required', 'unique:task-statuses'],
         ]);
@@ -139,12 +148,21 @@ class TaskStatusController extends Controller
 
         $taskStatus = TaskStatus::create($validated);
 
+        
+*/
+        $grpcRequest = new CreateTaskStatusRequest(
+            ['task_status'=> new TaskStatus(['name'=> $validated['name']])]
+        );
+
+        $sender = new GRPCMessageHelper;
+        $reply = $sender->sendMessage($grpcRequest,'CreateTaskStatus');
+
         return response()->json([
             'success' => true,
             'statusCode' => 201,
             'message' => 'Task Status has been created successfully.',
-            'data' => $taskStatus,
-        ], 201);*/
+            'data' => $reply,
+        ], 201);
     }
 
     /**

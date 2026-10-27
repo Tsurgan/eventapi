@@ -17,6 +17,10 @@ class CreateTaskStatusRequest extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>.task_status.TaskStatus task_status = 1;</code>
      */
     protected $task_status = null;
+    /**
+     * Generated from protobuf field <code>string user_id = 2;</code>
+     */
+    protected $user_id = '';
 
     /**
      * Constructor.
@@ -25,6 +29,7 @@ class CreateTaskStatusRequest extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type \GRPC\TaskStatus\TaskStatus $task_status
+     *     @type string $user_id
      * }
      */
     public function __construct($data = NULL) {
@@ -60,6 +65,28 @@ class CreateTaskStatusRequest extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkMessage($var, \GRPC\TaskStatus\TaskStatus::class);
         $this->task_status = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>string user_id = 2;</code>
+     * @return string
+     */
+    public function getUserId()
+    {
+        return $this->user_id;
+    }
+
+    /**
+     * Generated from protobuf field <code>string user_id = 2;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setUserId($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->user_id = $var;
 
         return $this;
     }

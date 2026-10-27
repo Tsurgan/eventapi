@@ -23,8 +23,6 @@ final class GRPCDispatcher implements DispatcherInterface
             'debug' => false, // optional (default: false)
         ]);
 
-        //$server->registerService(TaskStatusServiceInterface::class, new GRPCMessenger());
-
         $server->serve(Worker::create());
     }
 }

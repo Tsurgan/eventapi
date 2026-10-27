@@ -10,7 +10,7 @@
     },
     "servers": [
         {
-            "url": "http://127.0.0.1:9001",
+            "url": "http://127.0.0.1:8000",
             "description": "API server"
         }
     ],
@@ -1238,9 +1238,9 @@
                 "scheme": "http",
                 "flows": {
                     "password": {
-                        "authorizationUrl": "http://127.0.0.1:9001/oauth/authorize",
-                        "tokenUrl": "http://127.0.0.1:9001/oauth/token",
-                        "refreshUrl": "http://127.0.0.1:9001/token/refresh",
+                        "authorizationUrl": "http://127.0.0.1:8080/oauth/authorize",
+                        "tokenUrl": "http://127.0.0.1:8080/oauth/token",
+                        "refreshUrl": "http://127.0.0.1:8080/token/refresh",
                         "scopes": []
                     }
                 }

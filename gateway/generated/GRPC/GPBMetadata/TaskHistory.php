@@ -18,7 +18,7 @@ class TaskHistory
         \GPBMetadata\Google\Protobuf\GPBEmpty::initOnce();
         $pool->internalAddGeneratedFile(
             '
-“
+Æ
 proto/task_history.prototask_historygoogle/protobuf/empty.proto"Š
 TaskHistory
 
@@ -32,21 +32,24 @@ TaskChange
 
 field_name (	
 original_data (	
-changed_data (	"R
+changed_data (	"c
 ListTaskHistoriesRequest
 	page_size (
 
 page_token (	
-task_id (	"g
+task_id (	
+user_id (	"g
 ListTaskHistoriesResponse1
 task_histories (2.task_history.TaskHistory
-next_page_token (	"#
+next_page_token (	"4
 GetTaskHistoryRequest
 
-id (	"&
+id (	
+user_id (	"7
 DeleteTaskHistoryRequest
 
-id (	2¡
+id (	
+user_id (	2¡
 TaskHistoryServiced
 ListTaskHistories&.task_history.ListTaskHistoriesRequest\'.task_history.ListTaskHistoriesResponseP
 GetTaskHistory#.task_history.GetTaskHistoryRequest.task_history.TaskHistoryS
