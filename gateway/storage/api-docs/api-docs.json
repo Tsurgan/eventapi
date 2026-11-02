@@ -1238,9 +1238,9 @@
                 "scheme": "http",
                 "flows": {
                     "password": {
-                        "authorizationUrl": "http://127.0.0.1:8080/oauth/authorize",
-                        "tokenUrl": "http://127.0.0.1:8080/oauth/token",
-                        "refreshUrl": "http://127.0.0.1:8080/token/refresh",
+                        "authorizationUrl": "http://0.0.0.0:8080/oauth/authorize",
+                        "tokenUrl": "http://0.0.0.0:8080/oauth/token",
+                        "refreshUrl": "http://0.0.0.0:8080/token/refresh",
                         "scopes": []
                     }
                 }

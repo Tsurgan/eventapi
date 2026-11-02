@@ -1,31 +1,68 @@
 services:
+  gateway-db:
+    image: postgres:16-alpine
+    container_name: gateway-db
+    networks:
+      - gateway-network
+    # Порты НЕ проброшены наружу (no ports: - "5432:5432"), БД полностью скрыта от хоста
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: user_db
+    volumes:
+      - user_db_volume:/var/lib/postgresql/data
+      - ./db/user_init.sql:/docker-entrypoint-initdb.d/init.sql
+
   gateway:
     build:
       context: ./gateway
     container_name: gateway
     ports:
       - "8000:8080" # Exposed to local machine at http://localhost:8000
+    depends_on:
+      - gateway-db
     volumes:
       - ./gateway:/var/www
-    environment:
-      - APP_ENV=local
-      - TASK_SERVICE_GRPC_HOST=task-service:9001
     networks:
-      - microservice-network
-    depends_on:
-      - task-service
+      - gateway-network
+      - public-network
+      - inner-network
+
+  task-db:
+    image: postgres:16-alpine
+    container_name: task-db
+    networks:
+      - task-network 
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: task_db
+    volumes:
+      - task_db_volume:/var/lib/postgresql/data
+      - ./db/task_init.sql:/docker-entrypoint-initdb.d/init.sql
 
   task-service:
     build:
       context: ./task-service
     container_name: task_service
+    depends_on:
+      - task-db
     volumes:
       - ./task-service:/var/www
-    environment:
-      - APP_ENV=local
     networks:
-      - microservice-network
+      - inner-network
+      - task-network 
 
 networks:
-  microservice-network:
+  public-network:
     driver: bridge
+  inner-network:
+    driver: bridge
+  gateway-network:
+    driver: bridge
+  task-network:
+    driver: bridge
+
+volumes:
+  user_db_volume:
+  task_db_volume:

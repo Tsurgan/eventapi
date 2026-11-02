@@ -19,6 +19,9 @@ RUN apk add --no-cache \
 RUN pecl install grpc \
     && docker-php-ext-enable grpc
 
+RUN apk add --no-cache postgresql-dev \
+    && docker-php-ext-install pdo pdo_pgsql pgsql
+
 # Clean up build dependencies to minimize image size
 # RUN apk del --no-cache .build-deps
 
